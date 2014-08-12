@@ -1,0 +1,20 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET        /                     controllers.Application.index
+#GET        /person/              controllers.Application.personSearch
+
+GET        /person/              controllers.Application.personSearchCompact(p: Int ?= 0, search: Option[String] ?= None )
+
+GET        /personD/             controllers.Application.personSearchDetailed(p: Int ?= 0, alias: Option[String] ?= None, email: Option[  String]?= None , name:  Option[String]  ?= None, title:  Option[  String]  ?= None , reportsTo: Option[String] ?= None, phone:  Option[String] ?= None, office: Option[ String] ?= None)
+
+GET        /person/*name         controllers.Application.person(name)
+GET        /group/               controllers.Application.groupSearchCompact(p: Int ?= 0, search: Option[String] ?= None)
+GET        /group/*name          controllers.Application.group(name)
+
+# Map static resources from the /public folder to the /assets URL path
+GET        /assets/*file         controllers.Assets.at(path="/public", file)
+# Map the webjar static assets to the /webjars URL
+GET        /webjars/*file        controllers.WebJarAssets.at(file)

@@ -1,0 +1,13 @@
+@(personSearchDetailForm: Form[personSearchDetailData])
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f) }
+
+@inputText(personSearchDetailForm("name"), '_label -> "Name", 'class -> "form-control")
+@inputText(personSearchDetailForm("alias"), '_label -> "alias", 'class -> "form-control")
+@inputText(personSearchDetailForm("email"), '_label -> "email", 'class -> "form-control")
+@inputText(personSearchDetailForm("title"), '_label -> "title", 'class -> "form-control")
+@inputText(personSearchDetailForm("reportsTo"), '_label -> "Reports To", 'class -> "form-control")
+@inputText(personSearchDetailForm("phone"), '_label -> "Phone #", 'class -> "form-control")
+@inputText(personSearchDetailForm("office"), '_label -> "office", 'class -> "form-control")

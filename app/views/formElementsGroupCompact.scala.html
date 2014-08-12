@@ -1,0 +1,7 @@
+@(groupSearchCompactForm: Form[groupSearchCompactData])
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f) }
+
+@inputText(groupSearchCompactForm("search"), '_label -> "Search For", 'class -> "form-control")

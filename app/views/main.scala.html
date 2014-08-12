@@ -1,0 +1,36 @@
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+
+<html  lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Offline: @title</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootswatch-superhero", "bootstrap.min.css"))">
+
+@*        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap", "bootstrap-theme.min.css"))">*@
+
+
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+    <script src="@routes.WebJarAssets.at(WebJarAssets.locate("html5shiv.js"))"></script>
+    <script src="@routes.WebJarAssets.at(WebJarAssets.locate("respond.min.js"))"></script>
+<![endif]-->
+        <script src="@routes.Assets.at("javascripts/hello.js")" type="text/javascript"></script>
+    </head>
+    <body >
+        @navbar()
+        @content
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="@routes.WebJarAssets.at(WebJarAssets.locate("bootswatch-superhero", "bootstrap.min.js"))"></script>
+</body>
+</html>

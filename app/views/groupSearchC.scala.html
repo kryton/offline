@@ -1,0 +1,144 @@
+@import com.unboundid.ldap.sdk.SearchResultEntry
+@import util.Page
+@import helper._
+@import util.LDAP
+
+@(ldap: LDAP, c: Form[groupSearchCompactData], currentPage: Page[SearchResultEntry])
+
+@implicitFieldConstructor = @{
+    FieldConstructor(twitterBootstrapInput.f)
+}
+
+@****************************************
+* Helper generating navigation links *
+****************************************@
+@link(newPage: Int, search: Field) = @{
+    routes.Application.groupSearchCompact(newPage, search.value)
+}
+@**********************************
+* Helper generating table headers *
+***********************************@
+@header(orderBy: Int, title: String) = {
+    <th class="col@orderBy header ">
+    @title
+    </th>
+}
+
+@main("Group Search") {
+
+    <div class="container">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                @form(routes.Application.groupSearchCompact()) {
+                    <fieldset>
+                    @formElementsGroupCompact(c)
+                    </fieldset>
+
+                    <div class="actions">
+                        <input type="submit" value="Search" class="btn btn-primary">
+                    </div>
+                }
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="container">
+
+    @Option(currentPage.items).filterNot(_.isEmpty).map { results =>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @header(1, "Alias")
+                @header(2, "Name")
+                @header(3, "Managed by")
+                @header(4, "Members")
+                @header(5, "Type")
+            </tr>
+        </thead>
+        <tbody>
+
+        @results.map { result:SearchResultEntry =>
+            <tr>
+                <td>
+                @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
+                    <a href='@routes.Application.group(result.getAttributeValue("mailNickname"))'>@result.getAttributeValue("mailNickname")</a>
+                } else {
+                    @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup ) {
+                        <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))'>@result.getAttributeValue("sAMAccountName")</a>
+
+                    } else {
+                        @result.getAttributeValue("name")
+                    }
+                }
+                </td>
+                <td>@result.getAttributeValue("name")</td>
+                <td>@if( result.hasAttribute("managedBy")) {
+                    @ldap.getByDistinguishedName( result.getAttributeValue("managedBy")).map { dEntry: SearchResultEntry =>
+                    <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
+                    }.getOrElse { @result.getAttributeValue("managedBy")
+                    }
+                }
+                </td>
+                <td>@if( result.hasAttribute("member") )  {@result.getAttributeValues("member").size }</td>
+<td>@result.getAttributeValue("sAMAccountType") match {
+    case LDAP.accountTypeAliasObject => {
+        Alias
+    }
+    case LDAP.accountTypeOtherGroup => {
+        Security Group
+    }
+    case LDAP.accountTypeMailGroup => {
+         Group
+    }
+    case _ => {
+        Other
+    }
+}</td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+    <hr/>
+
+    <ul class="pager" style="padding-bottom : 70 px ;">
+        @currentPage.prev.map { page =>
+        <li class="previous">
+            <a href="@link(page, c("search"))">&larr; Previous</a>
+        </li>
+        }.getOrElse {
+            <li class="previous disabled">
+                <a>&larr; Previous</a>
+            </li>
+        }
+    <li class="current">
+        <a>Displaying @(currentPage.offset + 1) to @(currentPage.offset + currentPage.pageSize) of @currentPage.total</a>
+    </li>
+        @currentPage.next.map { page =>
+        <li class="next">
+            <a href="@link(page, c("search"))">Next &rarr;</a>
+        </li>
+        }.getOrElse {
+            <li class="next disabled">
+                <a>Next &rarr;</a>
+            </li>
+        }
+    </ul>
+    }.getOrElse {
+        @if(c("search").value) {
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <em>Nothing to display</em>
+                </div>
+            </div>
+        }
+
+    }
+
+    </div>
+}

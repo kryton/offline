@@ -1,0 +1,112 @@
+# This is the main configuration file for the application.
+# ~~~~~
+
+# Secret key
+# ~~~~~
+# The secret key is used to secure cryptographics functions.
+#
+# This must be changed for production, but we recommend not changing it in this file.
+#
+# See http://www.playframework.com/documentation/latest/ApplicationSecret for more details.
+application.secret="YOUR SECRET ID GOES HERE"
+
+# The application languages
+# ~~~~~
+application.langs="en"
+
+# Global object class
+# ~~~~~
+# Define the Global object class for this application.
+# Default to Global in the root package.
+# application.global=Global
+
+# Router
+# ~~~~~
+# Define the Router object to use for this application.
+# This router will be looked up first when the application is starting up,
+# so make sure this is the entry point.
+# Furthermore, it's assumed your route file is named properly.
+# So for an application router like `my.application.Router`,
+# you may need to define a router file `conf/my.application.routes`.
+# Default to Routes in the root package (and conf/routes)
+# application.router=my.application.Routes
+
+# Database configuration
+# ~~~~~
+# You can declare as many datasources as you want.
+# By convention, the default datasource is named `default`
+#
+# db.default.driver=org.h2.Driver
+# db.default.url="jdbc:h2:mem:play"
+# db.default.user=sa
+# db.default.password=""
+
+# Evolutions
+# ~~~~~
+# You can disable evolutions if needed
+# evolutionplugin=disabled
+
+# Logger
+# ~~~~~
+# You can also configure logback (http://logback.qos.ch/),
+# by providing an application-logger.xml file in the conf directory.
+
+# Root logger:
+logger.root=ERROR
+
+# Logger used by the framework:
+logger.play=INFO
+
+# Logger provided to your application:
+logger.application=DEBUG
+
+ldap {
+    port=389
+  
+    mainDN="DC=mpls,DC=digitalriver,DC=com"
+    terminatedGroup="Terminated Employees"
+    mainDomain="MPLS"
+    servers=[
+        {
+            domain="MPLS",
+            servers=[
+                "snnadc02.mpls.digitalriver.com",
+                "dc3adc01.mpls.digitalriver.com",
+                "dc3adc02.mpls.digitalriver.com",
+                "sdadc02.mpls.digitalriver.com",
+                "dc5adc03.mpls.digitalriver.com",
+                "tkyadc01.mpls.digitalriver.com",
+                "dc2adc05.mpls.digitalriver.com",
+                "sdadc03.mpls.digitalriver.com",
+                "dc2adc03.mpls.digitalriver.com"
+            ],
+            dn="DC=mpls,DC=digitalriver,DC=com",
+            user="MPLS\\WikiServiceAcc",
+            pass= "****"
+        },
+        {
+            domain="Cologne",
+            servers=[
+                "vieadc01.cologne.digitalriver.com",
+                "dc5adc02.cologne.digitalriver.com",
+                "dc2adcgn01.cologne.digitalriver.com",
+                "dc5adc01.cologne.digitalriver.com",
+                "dc3adcgn01.cologne.digitalriver.com"
+            ],
+            dn="DC=cologne,DC=digitalriver,DC=com",
+            user="MPLS\\WikiServiceAcc",
+            pass= "****"
+        },
+        {
+            domain= "OC",
+            servers =[
+                "dc3ocad01.oc.digitalriver.com",
+                "ocad01.oc.digitalriver.com",
+                "dc2ocad01.oc.digitalriver.com"
+            ],
+            dn= "DC=OC,DC=digitalriver,DC=com",
+            user="MPLS\\WikiServiceAcc",
+            pass= "****"
+        },
+    ]
+}

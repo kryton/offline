@@ -1,0 +1,134 @@
+@import com.unboundid.ldap.sdk.SearchResultEntry
+@import util.LDAP
+@(ldap: LDAP, group:SearchResultEntry)
+
+@main(group.getAttributeValue("displayName")) {
+    <div class="container">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>@if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeMailGroup) {
+                        <a href='mailto:@group.getAttributeValue("mailNickname")'>@group.getAttributeValue("displayName")</a> (Group)
+                    } else {
+                        @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
+                            <a href='mailto:@group.getAttributeValue("sAMAccountName")'>@group.getAttributeValue("name")</a> (Security Group)
+                        } else {
+                            @if( group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
+                                @group.getAttributeValue("displayName") (Alias)
+                            } else {
+                                @group.getAttributeValue("displayName")
+                            }
+                        }
+                    }
+                    </h1>
+                </div>
+                @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <p>@group.getAttributeValues("description")
+                        </p>
+                        </div>
+                }
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <p>
+                    @if(group.getAttributeValues("managedBy")!=null) {
+                        @for(managedBy <- group.getAttributeValues("managedBy")) {
+                            @ldap.getByDistinguishedName(managedBy).map { dEntry: SearchResultEntry =>
+                                <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
+                            }.getOrElse { @managedBy
+                            }
+                        }
+                    }
+                    </p>
+                </div>
+            </div>
+        </div>
+        @if(group.getAttributeValues("member")!=null) {
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Group Members</h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="row">
+                            @for(direct <- group.getAttributeValues("member").sortWith(_<_)) {
+                                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+
+                                @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
+                                        @if( dEntry.getAttributeValue("sAMAccountType")==LDAP.accountTypePerson) {
+                                            <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>
+                                            @dEntry.getAttributeValue("displayName")</a>@if( dEntry.getAttributeValue("msExchHideFromAddressLists")) {*}
+                                        } else {
+                                            <a href='@routes.Application.group(dEntry.getAttributeValue("sAMAccountName"))'>
+                                            @dEntry.getAttributeValue("displayName")</a>
+                                        }
+                                    }.getOrElse { @direct
+                                    }
+
+                                </div>
+                            }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if(group.getAttributeValues("memberOf")!=null) {
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Member of</h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="row">
+                            @for(direct <- group.getAttributeValues("memberOf")) {
+                                <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+
+                                @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
+                                         <a href='@routes.Application.group(dEntry.getAttributeValue("mailNickname"))'>
+                                        @dEntry.getAttributeValue("displayName")</a>
+                                }.getOrElse {
+                                        @direct
+                                }
+                                </div>
+                            }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <p>@group.getAttributeValue("distinguishedName")</p>
+            </div>
+        </div>
+    </div>
+@*
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            @for(kvalue <- group.getAttributes) {
+                <li>
+                    @kvalue.getName /
+                    @kvalue.getValue
+                </li>
+
+            }
+            </div>
+        </div>
+    </div>
+
+   @* *@
+}
