@@ -1,0 +1,28 @@
+@(ex: Throwable)
+
+@main("An error has occurred") {
+
+    <div class="container">
+        <div class="jumbotron alert-danger">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>An Exception has occurred</h1>
+                    <p>@ex.getLocalizedMessage</p>
+                </div>
+                </div>
+            </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h2>Stack Trace</h2>
+                    <p>
+
+                    @for(element <- ex.getStackTrace) {
+                        @element<br>
+                    }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,22 @@
+@(message: String)
+
+@main("Welcome to Offline: Not Found") {
+
+    <div class="container">
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1>I can't find @message</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <p>Find a <a href="@routes.Application.personSearchCompact()">person</a></p>
+                <p>Find a <a href="@routes.Application.groupSearchCompact()">group</a></p>
+            </div>
+        </div>
+    </div>
+}

@@ -3,18 +3,19 @@ package util
 import java.security.GeneralSecurityException
 import javax.net.SocketFactory
 
+import akka.event.Logging
 import com.typesafe.config.ConfigFactory
 import com.unboundid.ldap.sdk._
 import com.unboundid.ldap.sdk.controls.{SortKey, ServerSideSortRequestControl, PasswordExpiringControl, PasswordExpiredControl}
 import com.unboundid.util.ssl.{SSLUtil, TrustAllTrustManager}
-import play.Play
+import play.{Logger, Play}
 import collection.JavaConversions._
 
 case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: DN, user: String, pass: String) {
   // var connection: LDAPConnection = connect()
   val ldapServerSet = new RoundRobinServerSet(servers.toArray[java.lang.String], servers.map(_ => port).toArray[Int])
   val bindRequest: BindRequest = new SimpleBindRequest(user, pass)
-  val pool = new LDAPConnectionPool(ldapServerSet, bindRequest, servers.size*2)
+  val pool = new LDAPConnectionPool(ldapServerSet, bindRequest, servers.size * 2)
 }
 
 class LDAP {
@@ -55,22 +56,22 @@ class LDAP {
     if (searchResult.length == 1) {
       Some(searchResult.get(0))
     } else {
-      System.err.println("getPersonByAccount:NOT Found" + searchFilter)
+      Logger.info("LDAP:getPersonByAccount person NOT Found" + accountName)
       None
     }
   }
 
   def getGroupByAccount(accountName: String): Option[SearchResultEntry] = {
-    val searchFilter: String = "(|"+
-      "(&(samAccountType="+LDAP.accountTypeMailGroup+")(mailNickname=" + accountName + "))" +
-      "(&(samAccountType="+LDAP.accountTypeOtherGroup+")(sAMAccountName=" + accountName + "))" +
-      "(&(samAccountType="+LDAP.accountTypeAliasObject+")(sAMAccountName=" + accountName + "))" +
-    ")"
+    val searchFilter: String = "(|" +
+      "(&(samAccountType=" + LDAP.accountTypeMailGroup + ")(mailNickname=" + accountName + "))" +
+      "(&(samAccountType=" + LDAP.accountTypeOtherGroup + ")(sAMAccountName=" + accountName + "))" +
+      "(&(samAccountType=" + LDAP.accountTypeAliasObject + ")(sAMAccountName=" + accountName + "))" +
+      ")"
     val searchResult = search(searchFilter)
     if (searchResult.length == 1) {
       Some(searchResult.get(0))
     } else {
-      System.err.println("getGroupByAccount:NOT Found:" + accountName)
+      Logger.info("LDAP:getGroupByAccount group NOT Found" + accountName)
       None
     }
   }
@@ -83,8 +84,8 @@ class LDAP {
 
   def groupSearchCompact(searchText: String): List[SearchResultEntry] = {
     val searchFilter =
-      "(&(|(samAccountType="+LDAP.accountTypeMailGroup+")(samAccountType="+LDAP.accountTypeOtherGroup+")(samAccountType="+LDAP.accountTypeAliasObject+"))" +
-      "(|(sAMAccountName="+searchText+"*)(mailNickname=" + searchText + "*)(cn=" + searchText + "*)(displayName=" + searchText + "*)))"
+      "(&(|(samAccountType=" + LDAP.accountTypeMailGroup + ")(samAccountType=" + LDAP.accountTypeOtherGroup + ")(samAccountType=" + LDAP.accountTypeAliasObject + "))" +
+        "(|(sAMAccountName=" + searchText + "*)(mailNickname=" + searchText + "*)(cn=" + searchText + "*)(displayName=" + searchText + "*)))"
 
     // TODO: the msExchHideFromAddressLists != OU=Terminated Employees
     search(searchFilter).filter(r => !r.getAttributeValue("distinguishedName").contains(terminatedDN))
@@ -94,6 +95,7 @@ class LDAP {
       r.getAttributeValue("cn")
     })
   }
+
   def personSearchCompact(searchText: String): List[SearchResultEntry] = {
     val searchFilter = "(&(samAccountType=" + LDAP.accountTypePerson + ")" +
       "(!(msExchHideFromAddressLists=TRUE))" +
@@ -166,29 +168,23 @@ class LDAP {
 
   def search(searchFilter: String): List[SearchResultEntry] = {
     // connect
-    System.out.println("Search: filter=" + searchFilter)
+    Logger.debug("Search: filter=" + searchFilter)
     val mainServer = serverMap(mainDN)
     val searchRequest: SearchRequest = new SearchRequest(mainServer.baseDN.toString(), SearchScope.SUB, searchFilter)
 
     val connection = mainServer.pool.getConnection
     try {
       val searchResult: SearchResult = connection.search(searchRequest)
-     mainServer.pool.releaseConnection(connection)
+      mainServer.pool.releaseConnection(connection)
       searchResult.getSearchEntries.toList
     } catch {
       case lse: LDAPSearchException =>
-        val searchResult = lse.getSearchResult
-        val resultCode = lse.getResultCode
-        val errorMessageFromServer = lse.getDiagnosticMessage
-        System.err.println("Search:Search Exception")
-        System.err.println(searchResult)
-        System.err.println(resultCode)
-        System.err.println(errorMessageFromServer)
+        Logger.error("Search:Search Exception", lse)
         mainServer.pool.releaseConnection(connection)
         new Array[SearchResultEntry](0).toList
       case ex: LDAPException =>
+        Logger.error("Search:LDAP Exception", ex)
         mainServer.pool.releaseDefunctConnection(connection)
-        System.err.println("Search:LDAP Exception:"+ ex.getDiagnosticMessage)
         new Array[SearchResultEntry](0).toList
     }
   }
@@ -206,18 +202,12 @@ class LDAP {
         Some(result)
       } catch {
         case lse: LDAPSearchException =>
-          val searchResult = lse.getSearchResult
-          val resultCode = lse.getResultCode
-          val errorMessageFromServer = lse.getDiagnosticMessage
-          System.err.println("getByDistinguishedName:Search Exception")
-          System.err.println(searchResult)
-          System.err.println(resultCode)
-          System.err.println(errorMessageFromServer)
+          Logger.error("LDAP:getByDistinguishedName Exception", lse)
           connectedServer.pool.releaseConnection(connection)
           None
         case ex: LDAPException =>
+          Logger.error("LDAP:getByDistinguishedName Exception", ex)
           connectedServer.pool.releaseDefunctConnection(connection)
-          System.err.println("getByDistinguishedName:LDAP Exception:"+ ex.getDiagnosticMessage)
           None
       }
     }
