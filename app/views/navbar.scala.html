@@ -8,14 +8,20 @@
                 <span class="icon-bar"></span>
             </button>
         </div>
-        <div class="navbar-collapse collapse" id="navbar-main">
+        <div class="navbar-collapse collapse " id="navbar-main">
             <ul class="nav navbar-nav">
                 <li><a href="@routes.Application.personSearchCompact()">People</a></li>
                 <li><a href="@routes.Application.groupSearchCompact()">Groups</a></li>
             </ul>
+            @*
             <ul class="nav navbar-nav navbar-right">
                 <li>Search...TBD</li>
             </ul>
+            *@
+            <form class="navbar-form navbar-right" method="GET" action='@routes.Application.personSearchCompact()'>
+                <input type="text" class="form-control col-lg-6" name="search" placeholder="Search">
+            </form>
+
         </div>
     </div>
 </div>

@@ -32,38 +32,34 @@
 
 @main("People Search") {
     <div class="container">
-        <div class="container">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12">
-                        <h1>Person Search</h1>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container">
+        <div class="page-header">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
-                @form(routes.Application.personSearchDetailed(),'class -> "form-horizontal") {
-                    <fieldset>
-                    @formElementsPersonDetail(c)
-
-                    <div class="form-group">
-                        <div class="col-sm-10 col-sm-offset-2">
-                            <input type="submit" value="Search" class="btn btn-primary">
-                            <a href='@routes.Application.personSearchCompact()'>Compact</a>
-
-                        </div>
-                    </div>
-                    </fieldset>
-                }
+                    <h1>Person Search</h1>
                 </div>
-
             </div>
         </div>
-
     </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            @form(routes.Application.personSearchDetailed(),'class -> "form-horizontal") {
+                <fieldset>
+                @formElementsPersonDetail(c)
 
+                <div class="form-group">
+                    <div class="col-sm-10 col-sm-offset-2">
+                        <input type="submit" value="Search" class="btn btn-primary">
+                        <a href='@routes.Application.personSearchCompact()'>Compact</a>
+
+                    </div>
+                </div>
+                </fieldset>
+            }
+            </div>
+
+        </div>
+    </div>
 
     <div class="container">
 
