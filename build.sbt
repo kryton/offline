@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
 
 LessKeys.compress in Assets := true
 
-pipelineStages := Seq(digest, gzip)
+pipelineStages := Seq(rjs, digest, gzip)
 
 includeFilter in (Assets, LessKeys.less) := "*.less"
 

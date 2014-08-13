@@ -4,7 +4,7 @@
 
 @main(group.getAttributeValue("displayName")) {
     <div class="container">
-        <div class="jumbotron">
+        <div class="page-header" id="banner">
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h1>@if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeMailGroup) {
@@ -33,7 +33,7 @@
                     @if(group.getAttributeValues("managedBy")!=null) {
                         @for(managedBy <- group.getAttributeValues("managedBy")) {
                             @ldap.getByDistinguishedName(managedBy).map { dEntry: SearchResultEntry =>
-                                <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
+                             Managed By: <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
                             }.getOrElse { @managedBy
                             }
                         }

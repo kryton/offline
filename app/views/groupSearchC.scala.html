@@ -27,17 +27,29 @@
 @main("Group Search") {
 
     <div class="container">
-        <div class="jumbotron">
+        <div class="page-header">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12">
-                @form(routes.Application.groupSearchCompact()) {
+                    <h1>Group Search</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                @form(routes.Application.groupSearchCompact(),'class -> "form-horizontal") {
                     <fieldset>
                     @formElementsGroupCompact(c)
+
+                        <div class="form-group">
+                            <div class="col-sm-10 col-sm-offset-2">
+                                <input type="submit" value="Search" class="btn btn-primary">
+
+                            </div>
+                        </div>
                     </fieldset>
 
-                    <div class="actions">
-                        <input type="submit" value="Search" class="btn btn-primary">
-                    </div>
                 }
                 </div>
 
