@@ -68,7 +68,7 @@
                 @header(3, "Title")
                 @header(4, "eMail")
                 @header(4, "Phone")
-                @header(4, "DN")
+             @*   @header(4, "DN")*@
             </tr>
         </thead>
         <tbody>
@@ -82,7 +82,7 @@
                     <a href="mailto:@result.getAttributeValue("mail")">@result.getAttributeValue("mail")</a>
                 </td>
                 <td>@result.getAttributeValue("telephoneNumber")</td>
-                <td>@result.getAttributeValue("distinguishedName")</td>
+           @*     <td>@result.getAttributeValue("distinguishedName")</td>*@
             </tr>
         }
 
