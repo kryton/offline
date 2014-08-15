@@ -78,8 +78,7 @@
 
                             @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
                                     <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>
-                                    @dEntry.getAttributeValue("displayName")</a>
-                                    @if( dEntry.getAttributeValue("msExchHideFromAddressLists")) {*}
+                                    @dEntry.getAttributeValue("displayName")</a>@if( dEntry.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {*}
                             }.getOrElse { @direct
                             }
                             </div>
@@ -151,7 +150,7 @@
         </div>
     </div>
 *@
-        @* 
+        @*
         <div class="container">
 
         <div class="row">

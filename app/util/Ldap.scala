@@ -57,9 +57,9 @@ class LDAP {
     val searchFilter: String = "(&(samAccountType=" + LDAP.accountTypePerson + ")(sAMAccountName=" + accountName + "))"
     val searchResult = search(searchFilter)
     if (searchResult.length == 1) {
-      Some(searchResult.get(0))
+      Some(searchResult.head)
     } else {
-      Logger.info("LDAP:getPersonByAccount person NOT Found" + accountName)
+      Logger.info("LDAP:getPersonByAccount person NOT Found:" + accountName)
       None
     }
   }
@@ -72,7 +72,7 @@ class LDAP {
       ")"
     val searchResult = search(searchFilter)
     if (searchResult.length == 1) {
-      Some(searchResult.get(0))
+      Some(searchResult.head)
     } else {
       Logger.info("LDAP:getGroupByAccount group NOT Found" + accountName)
       None
