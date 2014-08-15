@@ -2,6 +2,7 @@ package controllers
 
 import java.net.URLDecoder
 
+import com.unboundid.ldap.sdk.SearchResultEntry
 import play.api.data.Form
 import play.api.data._
 import play.api.data.Forms._
@@ -53,7 +54,6 @@ object Application extends Controller {
 
   def personSearchCompact(page: Int, search: Option[String]) = Action { implicit request =>
 
-
     personSearchCompactForm.bindFromRequest.fold(
       formWithErrors => {
         // binding failure, you retrieve the form containing errors:
@@ -62,10 +62,17 @@ object Application extends Controller {
       personSearchCompactData => {
         /* binding success, you get the actual value. */
         val searchText = personSearchCompactData.search
-        val results = ldap.personSearchCompact(searchText)
-        val offset = pageSize * page
-        val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
-        Ok(views.html.peopleSearchC(personSearchCompactForm.bindFromRequest(), pageList))
+        val results: List[SearchResultEntry] = ldap.personSearchCompact(searchText)
+        if (results.size == 1) {
+          val result = results.head
+          val alias = result.getAttributeValue("sAMAccountName")
+
+          Redirect(routes.Application.person(alias))
+        } else {
+          val offset = pageSize * page
+          val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
+          Ok(views.html.peopleSearchC(personSearchCompactForm.bindFromRequest(), pageList))
+        }
       }
     )
   }

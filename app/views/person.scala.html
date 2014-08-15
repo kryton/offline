@@ -88,38 +88,43 @@
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Member of</h3>
-                    </div>
-                    <div class="panel-body">
+                @defining( person.getAttributeValues("memberOf").toList.map({ a:String => ldap.getByDistinguishedName(a)}).flatten ) { memberList =>
+                @for(list <- LDAP.listTypes) {
+                    @if( memberList.filter( {rec:SearchResultEntry => rec.getAttributeValue("sAMAccountType") == list._1 }).size>0) {
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Member of @(list._2)</h3>
+                            </div>
+                            <div class="panel-body">
 
-                        <div class="row">
-                        @for(direct <- person.getAttributeValues("memberOf").sortWith(_<_)) {
-                            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-
-                            @ldap.getByDistinguishedName(direct).map { group:SearchResultEntry =>
-                                @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeMailGroup) {
-                                    <a href='@routes.Application.group(group.getAttributeValue("mailNickname"))'>@group.getAttributeValue("displayName")</a>
-                                } else {
-                                    @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
-                                        <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))'>@group.getAttributeValue("name")</a>*
+                                <div class="row">
+                                @for(group <- memberList.filter({ rec: SearchResultEntry => rec.getAttributeValue("sAMAccountType") == list._1}).sortBy({
+                                    _.getAttributeValue("sAMAccountName")
+                                })) {
+                                    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                                    @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
+                                        <a href='@routes.Application.group(group.getAttributeValue("mailNickname"))'>@group.getAttributeValue("displayName")</a>
                                     } else {
-                                        @if( group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
-                                            @group.getAttributeValue("displayName") (Alias)
+                                        @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup) {
+                                            <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))'>@group.getAttributeValue("name")</a>
                                         } else {
-                                            @group.getAttributeValue("displayName")
+                                            @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
+                                                @group.getAttributeValue("name")
+                                            } else {
+                                                *@group.getAttributeValue("displayName")
+                                            }
                                         }
                                     }
-                                }
-                            }.getOrElse { @direct
-                            }
-                            </div>
-                        }
 
+                                    </div>
+                                }
+
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    }
+                }
+                }
             </div>
         </div>
     }

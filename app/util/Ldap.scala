@@ -11,7 +11,7 @@ import com.unboundid.util.ssl.{SSLUtil, TrustAllTrustManager}
 import play.{Logger, Play}
 import collection.JavaConversions._
 
-case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: DN, user: String, pass: String) {
+case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: DN, user: String, pass: String, ignoreList: List[DN]) {
   // var connection: LDAPConnection = connect()
   val ldapServerSet = new RoundRobinServerSet(servers.toArray[java.lang.String], servers.map(_ => port).toArray[Int])
   val bindRequest: BindRequest = new SimpleBindRequest(user, pass)
@@ -30,7 +30,10 @@ class LDAP {
         port,
         new DN(p.getString("dn")),
         p.getString("user"),
-        p.getString("pass"))
+        p.getString("pass"),
+        p.getStringList("OUIgnore").map(x => new DN(x)).toList
+      )
+
     }
     servers.map(a => (a.domain, a)).toMap
   }
@@ -176,7 +179,10 @@ class LDAP {
     try {
       val searchResult: SearchResult = connection.search(searchRequest)
       mainServer.pool.releaseConnection(connection)
-      searchResult.getSearchEntries.toList
+      searchResult.getSearchEntries.toList.filter({a =>
+        val dnName = new DN( a.getAttributeValue("distinguishedName"))
+        mainServer.ignoreList.filter( { ou => ou.isAncestorOf(dnName, true) } ).isEmpty
+      })
     } catch {
       case lse: LDAPSearchException =>
         Logger.error("Search:Search Exception", lse)
@@ -219,6 +225,10 @@ object LDAP {
   val accountTypeMailGroup = "268435457"
   val accountTypeOtherGroup = "268435456"
   val accountTypeAliasObject = "536870912"
+  val listTypes = Map( LDAP.accountTypeMailGroup -> "Mailing Lists",
+    LDAP.accountTypeOtherGroup -> "Security Groups",
+    LDAP.accountTypeAliasObject -> "Aliases"
+  )
 
 }
 
