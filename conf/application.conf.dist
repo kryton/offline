@@ -70,16 +70,14 @@ ldap {
         {
             domain="MPLS",
             servers=[
-                "snnadc02.mpls.digitalriver.com",
-                "dc3adc01.mpls.digitalriver.com",
-                "dc3adc02.mpls.digitalriver.com",
-                "sdadc02.mpls.digitalriver.com",
-                "dc5adc03.mpls.digitalriver.com",
-                "tkyadc01.mpls.digitalriver.com",
-                "dc2adc05.mpls.digitalriver.com",
-                "sdadc03.mpls.digitalriver.com",
-                "dc2adc03.mpls.digitalriver.com"
+                "ldap.mpls.digitalriver.com"
+
             ],
+            OUIgnore =[
+                "OU=Service Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
+                "OU=Email Only Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
+                "OU=Resource Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
+            ]
             dn="DC=mpls,DC=digitalriver,DC=com",
             user="MPLS\\WikiServiceAcc",
             pass= "****"
@@ -93,18 +91,8 @@ ldap {
                 "dc5adc01.cologne.digitalriver.com",
                 "dc3adcgn01.cologne.digitalriver.com"
             ],
+            OUIgnore =[]
             dn="DC=cologne,DC=digitalriver,DC=com",
-            user="MPLS\\WikiServiceAcc",
-            pass= "****"
-        },
-        {
-            domain= "OC",
-            servers =[
-                "dc3ocad01.oc.digitalriver.com",
-                "ocad01.oc.digitalriver.com",
-                "dc2ocad01.oc.digitalriver.com"
-            ],
-            dn= "DC=OC,DC=digitalriver,DC=com",
             user="MPLS\\WikiServiceAcc",
             pass= "****"
         },
