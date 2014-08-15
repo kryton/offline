@@ -66,7 +66,7 @@ class LDAP {
 
   def getGroupByAccount(accountName: String): Option[SearchResultEntry] = {
     val searchFilter: String = "(|" +
-      "(&(samAccountType=" + LDAP.accountTypeMailGroup + ")(mailNickname=" + accountName + "))" +
+      "(&(samAccountType=" + LDAP.accountTypeMailGroup + ")(|(mailNickname=" + accountName + ")(sAMAccountName=" + accountName +")))" +
       "(&(samAccountType=" + LDAP.accountTypeOtherGroup + ")(sAMAccountName=" + accountName + "))" +
       "(&(samAccountType=" + LDAP.accountTypeAliasObject + ")(sAMAccountName=" + accountName + "))" +
       ")"

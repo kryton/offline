@@ -4,7 +4,7 @@
 
 @main(person.getAttributeValue("displayName")) {
 <div class="container">
-        <div class="page-header @if( person.getAttributeValue("msExchHideFromAddressLists")) {alert-warning} " id="banner">
+        <div class="page-header @if( person.getAttributeValue("msExchHideFromAddressLists") == "TRUE") {alert-warning} " id="banner">
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8">
                 <h1>@person.getAttributeValue("displayName")</h1>
@@ -36,13 +36,21 @@
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                             Cell:@person.getAttributeValue("mobile")
                         </div>
+                        @if( person.getAttributeValue("streetAddress") != null) {
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                Address: @person.getAttributeValue("streetAddress"),
+                                @person.getAttributeValue("l"),
+                                @person.getAttributeValue("st") @person.getAttributeValue("postalCode") @person.getAttributeValue("co")
+
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="col-md-5 col-lg-4">
                     <img src="@routes.Assets.at("images/noFace.jpg")">
                 </div>
             </div>
-            @if( person.getAttributeValue("msExchHideFromAddressLists")) {
+            @if( person.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                         <strong>Warning: This person is 'hidden'</strong>
@@ -103,13 +111,17 @@
                                 })) {
                                     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                                     @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
-                                        <a href='@routes.Application.group(group.getAttributeValue("mailNickname"))'>@group.getAttributeValue("displayName")</a>
+                                        @if(group.getAttributeValue("mailNickname")==null ) {
+                                            <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))'>@group.getAttributeValue("name")</a>
+                                        }else {
+                                            <a href='@routes.Application.group(group.getAttributeValue("mailNickname"))'>@group.getAttributeValue("displayName")</a>
+                                        }
                                     } else {
                                         @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup) {
                                             <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))'>@group.getAttributeValue("name")</a>
                                         } else {
                                             @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
-                                                @group.getAttributeValue("name")
+                                                <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))'>@group.getAttributeValue("name")</a>
                                             } else {
                                                 *@group.getAttributeValue("displayName")
                                             }
@@ -138,8 +150,8 @@
             </div>
         </div>
     </div>
-
-        @*
+*@
+        @* 
         <div class="container">
 
         <div class="row">
@@ -154,6 +166,6 @@
           </div>
         </div>
         </div>
-        *@
+    @*    *@
 
 }

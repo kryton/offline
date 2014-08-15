@@ -8,13 +8,17 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h1>@if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeMailGroup) {
-                        <a href='mailto:@group.getAttributeValue("mailNickname")'>@group.getAttributeValue("displayName")</a> (Group)
+                        @if(group.getAttributeValue("mailNickname")==null) {
+                            <a href='mailto:@group.getAttributeValue("sAMAccountName")'>@group.getAttributeValue("name")</a> (Group)
+                        }else {
+                            <a href='mailto:@group.getAttributeValue("mailNickname")'>@group.getAttributeValue("displayName")</a> (Group)
+                        }
                     } else {
                         @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
                             <a href='mailto:@group.getAttributeValue("sAMAccountName")'>@group.getAttributeValue("name")</a> (Security Group)
                         } else {
                             @if( group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
-                                @group.getAttributeValue("displayName") (Alias)
+                                @group.getAttributeValue("name") (Alias)
                             } else {
                                 @group.getAttributeValue("displayName")
                             }
@@ -22,10 +26,9 @@
                     }
                     </h1>
                 </div>
-                @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
+                @if( group.getAttributeValues("description") != null ) {
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                        <p>@group.getAttributeValues("description")
-                        </p>
+                        <p>@group.getAttributeValues("description")</p>
                         </div>
                 }
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
