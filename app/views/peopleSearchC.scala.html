@@ -73,7 +73,7 @@
         </thead>
         <tbody>
 
-        @results.map { result =>
+        @results.map { result:SearchResultEntry =>
             <tr>
                 <td><a href="@routes.Application.person(result.getAttributeValue("sAMAccountName"))">@result.getAttributeValue("sAMAccountName")</a></td>
                 <td>@result.getAttributeValue("name")</td>
