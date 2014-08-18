@@ -62,7 +62,7 @@ logger.application=DEBUG
 
 ldap {
     port=389
-  
+
     mainDN="DC=mpls,DC=digitalriver,DC=com"
     terminatedGroup="Terminated Employees"
     mainDomain="MPLS"
@@ -98,3 +98,5 @@ ldap {
         },
     ]
 }
+
+play.filters.headers.contentSecurityPolicy="default-src 'self';style-src 'self' http://fonts.googleapis.com 'unsafe-inline'; font-src 'self' http://fonts.gstatic.com"
