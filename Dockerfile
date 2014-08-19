@@ -2,7 +2,7 @@ FROM        ubuntu:14.04
 
 MAINTAINER  Ian Holsman <kryton@gmail.com>
 
-ENV         ACTIVATOR_VERSION 1.2.7
+ENV         ACTIVATOR_VERSION 1.2.8
 ENV         DEBIAN_FRONTEND noninteractive
 
 # INSTALL OS DEPENDENCIES
@@ -13,6 +13,7 @@ RUN         echo debconf shared/accepted-oracle-license-v1-1 select true | debco
             echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections && \
             add-apt-repository -y ppa:webupd8team/java && \
             apt-get update && \
+            apt-get install -y  ca-certificates-java && \
             apt-get install -y oracle-java7-installer
 
 # INSTALL TYPESAFE ACTIVATOR
@@ -24,6 +25,7 @@ RUN         cd /tmp && \
 
 # COMMIT PROJECT FILES
 ADD         app /root/app
+ADD         lib /root/lib
 ADD         test /root/test
 ADD         conf /root/conf
 ADD         public /root/public
