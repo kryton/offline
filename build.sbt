@@ -15,12 +15,16 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "com.unboundid" % "unboundid-ldapsdk" % "2.3.6",
-    "org.webjars" %% "webjars-play" % "2.3.0",
-    "org.webjars" % "bootstrap" % "3.2.0",
-    "org.webjars" % "bootswatch-superhero" % "3.2.0",
-    "org.webjars" % "html5shiv" % "3.7.2",
-    "org.webjars" % "requirejs" % "2.1.14",
-    "org.webjars" % "respond" % "1.4.2"
+  "org.webjars" %% "webjars-play" % "2.3.0",
+  "org.webjars" % "bootstrap" % "3.2.0",
+  "org.webjars" % "bootswatch-superhero" % "3.2.0",
+  "org.webjars" % "html5shiv" % "3.7.2",
+  "org.webjars" % "requirejs" % "2.1.14",
+  "org.webjars" % "respond" % "1.4.2",
+  "org.imgscalr" % "imgscalr-lib" % "4.2",
+  "com.sksamuel.scrimage" %% "scrimage-core" % "1.4.1",
+  "com.sksamuel.scrimage" %% "scrimage-canvas" % "1.4.1",
+  "com.sksamuel.scrimage" %% "scrimage-filters" % "1.4.1"
 )
 
 LessKeys.compress in Assets := true

@@ -5,12 +5,14 @@ import play.filters.headers.SecurityHeadersFilter
 import play.api._
 import play.api.mvc._
 import play.api.mvc.Results._
+import util.LDAP
 import scala.concurrent.Future
 
 /**
  * Created by iholsman on 11/08/2014.
  */
 object Global extends  WithFilters(CSRFFilter(),SecurityHeadersFilter(), new GzipFilter()) {
+
   override def onError(request: RequestHeader, ex: Throwable) = {
     Future.successful(InternalServerError(
       views.html.errorPage(ex)

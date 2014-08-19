@@ -47,7 +47,8 @@
                     </div>
                 </div>
                 <div class="col-md-5 col-lg-4">
-                    <img src="@routes.Assets.at("images/noFace.jpg")">
+                  @* <img src="@routes.Assets.at("images/noFace.jpg")">*@
+                   <img src='@routes.ImageC.headShot(person.getAttributeValue("sAMAccountName"))' >
                 </div>
             </div>
             @if( person.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {
@@ -150,7 +151,7 @@
         </div>
     </div>
 *@
-        @*
+@*
         <div class="container">
 
         <div class="row">

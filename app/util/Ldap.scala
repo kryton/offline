@@ -237,7 +237,7 @@ class LDAP {
 
   def search(searchFilter: Filter): List[SearchResultEntry] = {
     // connect
-    Logger.debug("Search: filter=" + searchFilter)
+ //   Logger.debug("Search: filter=" + searchFilter)
     val mainServer = serverMap(mainDN)
     val searchRequest: SearchRequest = new SearchRequest(mainServer.baseDN.toString, SearchScope.SUB, searchFilter)
 
