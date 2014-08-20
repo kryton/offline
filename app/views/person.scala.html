@@ -6,14 +6,16 @@
 <div class="container">
         <div class="page-header @if( person.getAttributeValue("msExchHideFromAddressLists") == "TRUE") {alert-warning} " id="banner">
             <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8">
+                <div class="col-xs-12 col-sm-8 col-md-7 col-lg-8">
                 <h1>@person.getAttributeValue("displayName")</h1>
                     <div class="row">
-                        <div class="col-xs-12 col-sm-6 col-md-12 col-lg-12">
-                            <p>@person.getAttributeValue("title")</p>
-                            <p>@person.getAttributeValue("company")</p>
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            @person.getAttributeValue("title")
                         </div>
-                        <div class="col-xs-12 col-sm-3 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                            @person.getAttributeValue("company")
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                             <p>Reports to:
                                 @ldap.getByDistinguishedName(person.getAttributeValue("manager")).map  { manager:SearchResultEntry =>
                                 <a href='@routes.Application.person(manager.getAttributeValue("sAMAccountName"))'>
@@ -21,21 +23,22 @@
                                  }.getOrElse{ No Manager }
                             </p>
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <p>@person.getAttributeValue("physicalDeliveryOfficeName")</p>
-                        </div>
-                        <div class="col-xs-12 col-sm-4 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                             email:<a href="mailto:@person.getAttributeValue("mail")">@person.getAttributeValue("mail")</a>
                         </div>
-                        <div class="col-xs-12 col-sm-4 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                             Interoffice:@person.getAttributeValue("otherTelephone")
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                             Phone:@person.getAttributeValue("telephoneNumber")
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                             Cell:@person.getAttributeValue("mobile")
                         </div>
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
+                            @person.getAttributeValue("physicalDeliveryOfficeName")
+                        </div>
+
                         @if( person.getAttributeValue("streetAddress") != null) {
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                 Address: @person.getAttributeValue("streetAddress"),
@@ -46,9 +49,9 @@
                         }
                     </div>
                 </div>
-                <div class="col-md-5 col-lg-4">
+                <div class="col-sm-4 col-md-5 col-lg-4">
                   @* <img src="@routes.Assets.at("images/noFace.jpg")">*@
-                   <img src='@routes.ImageC.headShot(person.getAttributeValue("sAMAccountName"))' >
+                   <img class="img-responsive" src='@routes.ImageC.headShot(person.getAttributeValue("sAMAccountName"))' >
                 </div>
             </div>
             @if( person.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {
