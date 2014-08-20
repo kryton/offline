@@ -1,26 +1,22 @@
 package util;
 
-import jjil.core.Rect;
+import jjil.core.*;
 import util.Gray8DetectHaarMultiScale;
 import jjil.algorithm.Gray8Rgb;
 import jjil.algorithm.RgbAvgGray;
-import jjil.core.Image;
-import jjil.core.RgbImage;
 import jjil.j2se.RgbImageJ2se;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
 
 /**
  * Created by iholsman on 18/08/2014.
  */
 public class FaceDetect {
-    public static BufferedImage findFaces(BufferedImage bi, int minScale, int maxScale) {
+    public static BufferedImage findFaces(BufferedImage bi, int minScale, int maxScale) throws Exception {
         try {
             // step #2 - convert BufferedImage to JJIL Image
             RgbImage im = RgbImageJ2se.toRgbImage(bi);
@@ -62,20 +58,16 @@ public class FaceDetect {
             } else {
                 cropped = bi;
             }
-            return cropped;   /*
-            // step #6 - retrieve resulting face detection mask
-            Image i = detectHaar.getFront();
-            // finally convert back to RGB image to write out to .jpg file
-            Gray8Rgb g2rgb = new Gray8Rgb();
-            g2rgb.push(i);
-            RgbImageJ2se conv = new RgbImageJ2se();
-            conv.toFile((RgbImage)g2rgb.getFront(), output.getCanonicalPath());
-            */
-        } catch (Throwable e) {
-            throw new IllegalStateException(e);
+            return cropped;
+        } catch (jjil.core.Error e) {
+            e.printStackTrace();
+            throw new Exception(e);
+        } catch (IOException e2) {
+            e2.printStackTrace();
+            throw new Exception(e2);
         }
     }
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws Exception {
         BufferedImage inImage  = ImageIO.read(new File(  "/Users/iholsman/Pictures/Non_Customer_Service/Terri Blessing.JPG" ));
         File f = new File("/tmp/ih.jpg");
         BufferedImage cropped=  findFaces(inImage,1,40);

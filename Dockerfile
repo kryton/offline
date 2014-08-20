@@ -23,6 +23,7 @@ RUN         cd /tmp && \
             mv /usr/local/activator-$ACTIVATOR_VERSION /usr/local/activator && \
             rm typesafe-activator-$ACTIVATOR_VERSION.zip
 
+
 # COMMIT PROJECT FILES
 ADD         app /root/app
 ADD         lib /root/lib
@@ -32,6 +33,7 @@ ADD         public /root/public
 ADD         build.sbt /root/
 ADD         project/plugins.sbt /root/project/
 ADD         project/build.properties /root/project/
+RUN         mkdir  -p /pic/cache  /pic/source && chown 777 /pic/cache /pic/source
 
 # TEST AND BUILD THE PROJECT -- FAILURE WILL HALT IMAGE CREATION
 RUN         cd /root; /usr/local/activator/activator test stage
@@ -40,4 +42,5 @@ RUN         rm /root/target/universal/stage/bin/*.bat
 # TESTS PASSED -- CONFIGURE IMAGE
 WORKDIR     /root
 ENTRYPOINT  target/universal/stage/bin/$(ls target/universal/stage/bin)
+VOLUME      ["/pic/cache","/pic/source"]
 EXPOSE      9000
