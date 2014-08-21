@@ -67,3 +67,7 @@ and YYYYY should be your domain name eg ( example.com)
 
 or you could just ask your domain admin.. (but that's not as much fun).
 
+Thanks to
+----------
+Richard Nichols for his simple explanation on face detection - [Face detection example](http://www.richardnichols.net/2011/01/java-facial-recognition-haar-cascade-with-jjil-guide/ Face Detection)
+
