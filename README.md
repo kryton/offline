@@ -46,8 +46,10 @@ $ sbt run
 Finding the machines that are running active directory in your domain
 ---------------------------------------------------------------------
 $ nslookup
-> set type=any
->_ldap._tcp.dc._msdcs.XXXXXX.YYYYYYY.com
+
+> > set type=any
+
+> >_ldap._tcp.dc._msdcs.XXXXXX.YYYYYYY.com
 
 where XXXXX should be your Windows domain name that you log into. (eg REDMOND\johnsmith)
 and YYYYY should be your domain name eg ( example.com)
