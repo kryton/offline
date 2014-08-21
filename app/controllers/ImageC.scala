@@ -84,7 +84,7 @@ object ImageC extends Controller {
                   }
                 }
                 val aFile: Array[Byte] = processedImage.write()
-                Ok(aFile).as("image/jpg")
+                Ok(aFile).as("image/jpeg")
               }
               case _ => Redirect(routes.Assets.at("images/noFace.jpg"))
             }
@@ -96,7 +96,7 @@ object ImageC extends Controller {
             case Some(file: String) => {
        //       Logger.info("Using Cached version of " + file)
               val cacheFile = new java.io.File(cacheDir + "/" + file)
-              Ok.sendFile(content = cacheFile, inline = true).as("image/jpg")
+              Ok.sendFile(content = cacheFile, inline = true).as("image/jpeg")
             }
             case None => Redirect(routes.Assets.at("images/noFace.jpg"))
           }
