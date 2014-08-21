@@ -62,60 +62,7 @@
     <div class="container">
 
     @Option(currentPage.items).filterNot(_.isEmpty).map { results =>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                @header(1, "Alias")
-                @header(2, "Name")
-                @header(3, "Managed by")
-                @header(4, "Members")
-                @header(5, "Type")
-            </tr>
-        </thead>
-        <tbody>
-
-        @results.map { result:SearchResultEntry =>
-            <tr>
-                <td>
-                @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
-                   <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a>
-                } else {
-                    @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup ) {
-                        <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a>
-
-                    } else {
-                        @result.getAttributeValue("sAMAccountName")
-                    }
-                }
-                </td>
-                <td>@result.getAttributeValue("name")</td>
-                <td>@if( result.hasAttribute("managedBy")) {
-                    @ldap.getByDistinguishedName( result.getAttributeValue("managedBy")).map { dEntry: SearchResultEntry =>
-                    <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
-                    }.getOrElse { @result.getAttributeValue("managedBy")
-                    }
-                }
-                </td>
-                <td>@if( result.hasAttribute("member") )  {@result.getAttributeValues("member").size }</td>
-<td>@result.getAttributeValue("sAMAccountType") match {
-    case LDAP.accountTypeAliasObject => {
-        Alias
-    }
-    case LDAP.accountTypeOtherGroup => {
-        Security Group
-    }
-    case LDAP.accountTypeMailGroup => {
-         Group
-    }
-    case _ => {
-        Other
-    }
-}</td>
-            </tr>
-        }
-
-        </tbody>
-    </table>
+  @fragment.groupListing(ldap, results)
     <hr/>
 
     <ul class="pager" style="padding-bottom : 70 px ;">

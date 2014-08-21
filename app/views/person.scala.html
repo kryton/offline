@@ -24,16 +24,16 @@
                             </p>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                            email:<a href="mailto:@person.getAttributeValue("mail")">@person.getAttributeValue("mail")</a>
+                            email: <a href="mailto:@person.getAttributeValue("mail")">@person.getAttributeValue("mail")</a>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                            Interoffice:@person.getAttributeValue("otherTelephone")
+                            Interoffice: @person.getAttributeValue("otherTelephone")
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                            Phone:@person.getAttributeValue("telephoneNumber")
+                            Phone: @person.getAttributeValue("telephoneNumber")
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                            Cell:@person.getAttributeValue("mobile")
+                            Cell: @person.getAttributeValue("mobile")
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6">
                             @person.getAttributeValue("physicalDeliveryOfficeName")
@@ -75,6 +75,8 @@
                 <div class="panel-body">
 
                     <div class="row">
+                        @fragment.personListing(ldap, person.getAttributeValues("directReports").map { a => ldap.getByDistinguishedName(a).get} )
+                        @*
                         @for(direct <- person.getAttributeValues("directReports")
                             .sortWith(_<_)
                         ) {
@@ -87,6 +89,7 @@
                             }
                             </div>
                         }
+                            *@
 
                     </div>
                 </div>

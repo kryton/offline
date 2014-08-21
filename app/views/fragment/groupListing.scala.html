@@ -1,0 +1,54 @@
+@import util.LDAP
+@import com.unboundid.ldap.sdk.SearchResultEntry
+@(ldap:LDAP, results:Seq[SearchResultEntry])
+@header(orderBy: Int, title: String, classEx:Option[String] = None) = {
+    <th class="col@orderBy header @classEx.getOrElse("") ">
+    @title
+    </th>
+}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                @header(2, "Name")
+                @header(3, "Managed by", Some("hidden-md hidden-xs hidden-sm"))
+                @header(4, "Members", Some("hidden-xs hidden-sm"))
+                @header(5, "Type", Some("hidden-xs"))
+            </tr>
+        </thead>
+        <tbody>
+
+        @results.map { result:SearchResultEntry =>
+            <tr>
+                <td>
+                    <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("name")</a>
+                </td>
+                <td class="hidden-md hidden-xs hidden-sm">@if( result.hasAttribute("managedBy")) {
+                    @ldap.getByDistinguishedName( result.getAttributeValue("managedBy")).map { dEntry: SearchResultEntry =>
+                    <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
+                    }.getOrElse { @result.getAttributeValue("managedBy")
+                    }
+                }
+                </td>
+                <td class="hidden-xs hidden-sm">@if( result.hasAttribute("member") )  {@result.getAttributeValues("member").size }</td>
+                <td class="hidden-xs">@result.getAttributeValue("sAMAccountType") match {
+                    case LDAP.accountTypeAliasObject => {
+                        Alias
+                    }
+                    case LDAP.accountTypeOtherGroup => {
+                        Security Group
+                    }
+                    case LDAP.accountTypeMailGroup => {
+                        Group
+                    }
+                    case _ => {
+                        Other
+                    }
+                }</td>
+            </tr>
+        }
+
+        </tbody>
+    </table>
+
+</div>

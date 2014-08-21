@@ -1,0 +1,39 @@
+@import util.LDAP
+@import com.unboundid.ldap.sdk.SearchResultEntry
+@(ldap:LDAP, results:Seq[SearchResultEntry])
+@header(orderBy: Int, title: String, classEx:Option[String] = None) = {
+    <th class="col@orderBy header @classEx.getOrElse("") ">
+    @title
+    </th>
+}
+<div class="table-responsive">
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            @header(1, "Name")
+            @header(2, "Title",Some("hidden-xs hidden-sm"))
+            @header(3, "eMail")
+            @header(4, "Phone")
+            @header(5, "Alias",Some("hidden-xs hidden-sm hidden-md"))
+            @*   @header(4, "DN")*@
+        </tr>
+    </thead>
+    <tbody>
+
+    @results.sortBy( _.getAttributeValue("sn") ).map { result:SearchResultEntry =>
+        <tr>
+            <td><a href='@routes.Application.person(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("name")</a></td>
+            <td class="hidden-sm hidden-xs">@result.getAttributeValue("title")</td>
+            <td>
+                <a href="mailto:@result.getAttributeValue("mail")">@result.getAttributeValue("mail")</a>
+            </td>
+            <td>@result.getAttributeValue("telephoneNumber")</td>
+            <td class="hidden-sm hidden-xs hidden-md">@result.getAttributeValue("sAMAccountName")</td>
+            @*     <td>@result.getAttributeValue("distinguishedName")</td>*@
+        </tr>
+    }
+    </tbody>
+</table>
+
+</div>

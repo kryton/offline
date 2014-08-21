@@ -64,32 +64,8 @@
     <div class="container">
 
     @Option(currentPage.items).filterNot(_.isEmpty).map { results =>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                @header(1, "Alias")
-                @header(2, "Name")
-                @header(3, "Title")
-                @header(4, "eMail")
-                @header(4, "Phone")
-            </tr>
-        </thead>
-        <tbody>
+        @fragment.personListing(ldap, results)
 
-        @results.map { result =>
-            <tr>
-                <td><a href='@routes.Application.person(result.getAttributeValue("sAMAccountName"))?domain=ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a></td>
-                <td>@result.getAttributeValue("name")</td>
-                <td>@result.getAttributeValue("title")</td>
-                <td>
-                    <a href="mailto:@result.getAttributeValue("mail")">@result.getAttributeValue("mail")</a>
-                </td>
-                <td>@result.getAttributeValue("telephoneNumber")</td>
-            </tr>
-        }
-
-        </tbody>
-    </table>
     <hr/>
 
     <ul class="pager" style="padding-bottom : 70 px ;">
