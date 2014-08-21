@@ -276,8 +276,7 @@ object LDAP {
 object testLDAP extends App {
   val ldap: LDAP = new LDAP
 
-  //  val person = ldap.getByDistinguishedName("CN=Joel Rangsmo,OU=Users,OU=Stockholm,OU=EMEA,DC=mpls,DC=digitalriver,DC=com")
-  val people = ldap.personSearchDetailed(Some("iholsman"), Some("ihol"), None, None, None, None, Some("Cahall"))
+  val people = ldap.personSearchDetailed(Some("iholsman"), Some("ihol"), None, None, None, None, Some("hols"))
   System.out.println("Results")
   System.out.println(people)
 }

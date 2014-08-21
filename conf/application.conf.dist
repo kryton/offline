@@ -62,35 +62,35 @@ logger.application=DEBUG
 
 ldap {
     port=389
-    mainDomain="MPLS"
+    mainDomain="PRIMARY"
     servers=[
         {
-            domain="MPLS",
+            domain="PRIMARY",
             servers=[
-                "ldap.mpls.digitalriver.com"
+                "ldap.prim1.example.com"
             ],
             OUIgnore =[
-                "OU=Service Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
-                "OU=Email Only Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
-                "OU=Resource Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
+                "OU=Service Accounts,OU=Corporate Users,DC=prim1,DC=example,DC=com"
+                "OU=Email Only Accounts,OU=Corporate Users,DC=prim1,DC=example,DC=com"
+                "OU=Resource Accounts,OU=Corporate Users,DC=prim1,DC=example,DC=com"
             ]
-            dn="DC=mpls,DC=digitalriver,DC=com",
-            user="MPLS\\WikiServiceAcc",
+            dn="DC=prim1,DC=example,DC=com",
+            user="PRIM\\ServiceAcc",
             pass= "****"
             terminatedGroup = "Terminated Employees"
         },
         {
-            domain="Cologne",
+            domain="secondary",
             servers=[
-                "vieadc01.cologne.digitalriver.com",
-                "dc5adc02.cologne.digitalriver.com",
-                "dc2adcgn01.cologne.digitalriver.com",
-                "dc5adc01.cologne.digitalriver.com",
-                "dc3adcgn01.cologne.digitalriver.com"
+                "mach1.second.example.com",
+                "mach2.second.example.com",
+                "mach3.second.example.com",
+                "mach4.second.example.com",
+                "mach5.second.example.com"
             ],
             OUIgnore =[]
-            dn="DC=cologne,DC=digitalriver,DC=com",
-            user="MPLS\\WikiServiceAcc",
+            dn="DC=second,DC=example,DC=com",
+            user="PRIM\\ServiceAcc",
             pass= "****"
             terminatedGroup = "Terminated Employees"
         },

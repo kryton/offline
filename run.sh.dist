@@ -1,0 +1,2 @@
+export REPO=devsand00583.example.com:5000
+docker run -v /pic/cache:/pic/cache -v /pic/source:/pic/source --name offline -d  -p 9000:9000 ${REPO}/offline

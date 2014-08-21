@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+export REPO=devsand00583.example.com:5000
+docker build --rm=true -t ${REPO}/offline .
