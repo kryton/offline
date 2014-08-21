@@ -19,3 +19,4 @@ run.sh
 push.sh
 pull.sh
 build.sh
+run.prod.sh
