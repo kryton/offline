@@ -1,0 +1,3 @@
+- HCSB.txt - used for face detection
+- routes - used by play to map URL paths to code
+- application.conf.dist - the configuration stuff

@@ -6,3 +6,9 @@ the License. You may obtain a copy of the License at http://www.apache.org/licen
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
 language governing permissions and limitations under the License.
+
+
+note:
+the image processing library JJIL is LGPLv3.  (which is included in binary form)
+Gray8DetectHaarMultiScale.java is included in source code, as it was patched to return the list of rectangles. If this presents an issue for you
+you can remove the face detection logic form app/controllers/ImageC.scala so it doesn't do face detection.
