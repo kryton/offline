@@ -78,13 +78,13 @@
             <tr>
                 <td>
                 @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
-                    <a href='@routes.Application.group(result.getAttributeValue("mailNickname"))'>@result.getAttributeValue("mailNickname")</a>
+                   <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a>
                 } else {
                     @if( result.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup ) {
-                        <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))'>@result.getAttributeValue("sAMAccountName")</a>
+                        <a href='@routes.Application.group(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a>
 
                     } else {
-                        @result.getAttributeValue("name")
+                        @result.getAttributeValue("sAMAccountName")
                     }
                 }
                 </td>

@@ -10,11 +10,12 @@ GET        /person/                      controllers.Application.personSearchCom
 
 GET        /personD/                     controllers.Application.personSearchDetailed(p: Int ?= 0, alias: Option[String] ?= None, email: Option[  String]?= None , name:  Option[String]  ?= None, title:  Option[  String]  ?= None , reportsTo: Option[String] ?= None, phone:  Option[String] ?= None, office: Option[ String] ?= None)
 
-GET        /person/*name                 controllers.Application.person(name)
+GET        /person/*name                 controllers.Application.person(name, domain:Option[String] ?= None)
 GET        /group/                       controllers.Application.groupSearchCompact(p: Int ?= 0, search: Option[String] ?= None)
-GET        /group/*name                  controllers.Application.group(name)
+GET        /group/*name                  controllers.Application.group(name, domain:Option[String] ?= None)
 
-GET        /headshot/*name        controllers.ImageC.headShot(name)
+
+GET        /headshot/*name        controllers.ImageC.headShot(name, domain:Option[String] ?= None)
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file                 controllers.Assets.at(path="/public", file)
 # Map the webjar static assets to the /webjars URL

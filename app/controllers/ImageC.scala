@@ -45,12 +45,13 @@ object ImageC extends Controller {
     val theFace = FaceDetect.findFaces(inImage, 1, 40)
     Some(Image(theFace).fitToWidth(300).writer(Format.JPEG))
   }
-  def headShot(alias: String) = Action {
-    ldap.getPersonByAccount(URLDecoder.decode(alias, "UTF-8")) match {
-      case None => Redirect(routes.Assets.at("images/noFace.jpg"))
-      case Some(p) => {
-        val fn = p.getAttributeValue("givenName").toLowerCase
-        val sn = p.getAttributeValue("sn").toLowerCase
+  def headShot(alias: String, domain:Option[String] ) = Action {
+    val results =ldap.getPersonByAccount(URLDecoder.decode(alias, "UTF-8"),domain)
+     results.size match {
+      case 0 => Redirect(routes.Assets.at("images/noFace.jpg"))
+      case 1 => {
+        val fn = results.head.getAttributeValue("givenName").toLowerCase
+        val sn = results.head.getAttributeValue("sn").toLowerCase
         val usedCached = cacheDir != null && !cacheDir.equalsIgnoreCase("None")
         val dirName = {
           if (usedCached) {
@@ -93,7 +94,7 @@ object ImageC extends Controller {
         } else {
           fileName match {
             case Some(file: String) => {
-              Logger.info("Using Cached version of " + file)
+       //       Logger.info("Using Cached version of " + file)
               val cacheFile = new java.io.File(cacheDir + "/" + file)
               Ok.sendFile(content = cacheFile, inline = true).as("image/jpg")
             }
@@ -101,6 +102,7 @@ object ImageC extends Controller {
           }
         }
       }
+      case _ => Redirect(routes.Assets.at("images/noFace.jpg"))
     }
 
 

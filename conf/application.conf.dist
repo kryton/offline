@@ -62,16 +62,12 @@ logger.application=DEBUG
 
 ldap {
     port=389
-
-    mainDN="DC=mpls,DC=digitalriver,DC=com"
-    terminatedGroup="Terminated Employees"
     mainDomain="MPLS"
     servers=[
         {
             domain="MPLS",
             servers=[
                 "ldap.mpls.digitalriver.com"
-
             ],
             OUIgnore =[
                 "OU=Service Accounts,OU=Corporate Users,DC=mpls,DC=digitalriver,DC=com"
@@ -81,6 +77,7 @@ ldap {
             dn="DC=mpls,DC=digitalriver,DC=com",
             user="MPLS\\WikiServiceAcc",
             pass= "****"
+            terminatedGroup = "Terminated Employees"
         },
         {
             domain="Cologne",
@@ -95,6 +92,7 @@ ldap {
             dn="DC=cologne,DC=digitalriver,DC=com",
             user="MPLS\\WikiServiceAcc",
             pass= "****"
+            terminatedGroup = "Terminated Employees"
         },
     ]
 }

@@ -57,7 +57,7 @@ object Application extends Controller {
     personSearchCompactForm.bindFromRequest.fold(
       formWithErrors => {
         // binding failure, you retrieve the form containing errors:
-        BadRequest(views.html.peopleSearchC(personSearchCompactForm, Page(null, 1, 0, 0, pageSize)))
+        BadRequest(views.html.peopleSearchC(ldap,personSearchCompactForm, Page(null, 1, 0, 0, pageSize)))
       },
       personSearchCompactData => {
         /* binding success, you get the actual value. */
@@ -71,7 +71,7 @@ object Application extends Controller {
         } else {
           val offset = pageSize * page
           val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
-          Ok(views.html.peopleSearchC(personSearchCompactForm.bindFromRequest(), pageList))
+          Ok(views.html.peopleSearchC(ldap,personSearchCompactForm.bindFromRequest(), pageList))
         }
       }
     )
@@ -90,7 +90,7 @@ object Application extends Controller {
     personSearchDetailForm.bindFromRequest.fold(
       formWithErrors => {
         // binding failure, you retrieve the form containing errors:
-        BadRequest(views.html.peopleSearchD(personSearchDetailForm, Page(null, 1, 0, 0, pageSize)))
+        BadRequest(views.html.peopleSearchD(ldap, personSearchDetailForm, Page(null, 1, 0, 0, pageSize)))
       },
       personSearchDetailData => {
         /* binding success, you get the actual value. */
@@ -98,7 +98,7 @@ object Application extends Controller {
         val results = ldap.personSearchDetailed(alias, email, name, title, reportsTo, phone, office)
         val offset = pageSize * page
         val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
-        Ok(views.html.peopleSearchD(personSearchDetailForm.bindFromRequest(), pageList))
+        Ok(views.html.peopleSearchD(ldap, personSearchDetailForm.bindFromRequest(), pageList))
       }
     )
   }
@@ -120,21 +120,23 @@ object Application extends Controller {
     )
   }
 
-  def person(name: String) = Action {
+  def person(name: String, domain: Option[String]) = Action {
+    val results = ldap.getPersonByAccount(URLDecoder.decode(name, "UTF-8"),domain)
 
-    ldap.getPersonByAccount(URLDecoder.decode(name, "UTF-8")) match {
-      case Some(p) => Ok(views.html.person(ldap, p))
-      case None => NotFound(views.html.notFoundPerson(name))
+   results.size match {
+      case 1 => Ok(views.html.person(ldap, results.head))
+      case 0 => NotFound(views.html.notFoundPerson(name))
+      case _ => Redirect(routes.Application.personSearchCompact(0,Some(name)))
     }
-
-
   }
 
-  def group(name: String) = Action { implicit request =>
+  def group(name: String, domain: Option[String]) = Action { implicit request =>
     // val ldap = new LDAP
-    ldap.getGroupByAccount(URLDecoder.decode(name, "UTF-8")) match {
-      case Some(p) => Ok(views.html.group(ldap, p))
-      case None => NotFound(views.html.notFoundGroup(name))
+    val results = ldap.getGroupsByAccount(URLDecoder.decode(name, "UTF-8"), domain)
+    results.size match {
+      case 0 => NotFound(views.html.notFoundGroup(name))
+      case 1 => Ok(views.html.group(ldap, results.head))
+      case _ => Redirect(routes.Application.groupSearchCompact(0,Some(name)))
     }
   }
 }

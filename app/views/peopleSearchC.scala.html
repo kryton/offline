@@ -1,8 +1,8 @@
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.Page
 @import helper._
-
-@(c: Form[personSearchCompactData], currentPage: Page[SearchResultEntry])
+@import util.LDAP
+@(ldap:LDAP, c: Form[personSearchCompactData], currentPage: Page[SearchResultEntry])
 
 @implicitFieldConstructor = @{
     FieldConstructor(twitterBootstrapInput.f)
@@ -75,7 +75,7 @@
 
         @results.map { result:SearchResultEntry =>
             <tr>
-                <td><a href="@routes.Application.person(result.getAttributeValue("sAMAccountName"))">@result.getAttributeValue("sAMAccountName")</a></td>
+                <td><a href='@routes.Application.person(result.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(result.getAttributeValue("distinguishedName"))'>@result.getAttributeValue("sAMAccountName")</a></td>
                 <td>@result.getAttributeValue("name")</td>
                 <td>@result.getAttributeValue("title")</td>
                 <td>

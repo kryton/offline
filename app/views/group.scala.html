@@ -9,13 +9,13 @@
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <h1>@if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeMailGroup) {
                         @if(group.getAttributeValue("mailNickname")==null) {
-                            <a href='mailto:@group.getAttributeValue("sAMAccountName")'>@group.getAttributeValue("name")</a> (Group)
+                            <a href='mailto:@group.getAttributeValue("sAMAccountName")?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a> (Group)
                         }else {
-                            <a href='mailto:@group.getAttributeValue("mailNickname")'>@group.getAttributeValue("displayName")</a> (Group)
+                            <a href='mailto:@group.getAttributeValue("sAMAccountName")?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("displayName")</a> (Group)
                         }
                     } else {
                         @if( group.getAttributeValue("sAMAccountType")== LDAP.accountTypeOtherGroup) {
-                            <a href='mailto:@group.getAttributeValue("sAMAccountName")'>@group.getAttributeValue("name")</a> (Security Group)
+                            <a href='mailto:@group.getAttributeValue("sAMAccountName")?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a> (Security Group)
                         } else {
                             @if( group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
                                 @group.getAttributeValue("name") (Alias)
@@ -36,7 +36,7 @@
                     @if(group.getAttributeValues("managedBy")!=null) {
                         @for(managedBy <- group.getAttributeValues("managedBy")) {
                             @ldap.getByDistinguishedName(managedBy).map { dEntry: SearchResultEntry =>
-                             Managed By: <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>@dEntry.getAttributeValue("displayName")</a>
+                             Managed By: <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(dEntry.getAttributeValue("distinguishedName"))'>@dEntry.getAttributeValue("displayName")</a>
                             }.getOrElse { @managedBy
                             }
                         }
@@ -61,10 +61,10 @@
 
                                 @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
                                         @if( dEntry.getAttributeValue("sAMAccountType")==LDAP.accountTypePerson) {
-                                            <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))'>
+                                            <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(dEntry.getAttributeValue("distinguishedName"))'>
                                             @dEntry.getAttributeValue("displayName")</a>@if( dEntry.getAttributeValue("msExchHideFromAddressLists")) {*}
                                         } else {
-                                            <a href='@routes.Application.group(dEntry.getAttributeValue("sAMAccountName"))'>
+                                            <a href='@routes.Application.group(dEntry.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(dEntry.getAttributeValue("distinguishedName"))'>
                                             @dEntry.getAttributeValue("displayName")</a>
                                         }
                                     }.getOrElse { @direct
@@ -95,7 +95,7 @@
                                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 
                                 @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
-                                         <a href='@routes.Application.group(dEntry.getAttributeValue("mailNickname"))'>
+                                         <a href='@routes.Application.group(dEntry.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(dEntry.getAttributeValue("distinguishedName"))'>
                                         @dEntry.getAttributeValue("displayName")</a>
                                 }.getOrElse {
                                         @direct
