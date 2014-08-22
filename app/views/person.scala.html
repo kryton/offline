@@ -68,7 +68,7 @@
 
         <div class="row">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div class="panel panel-warning">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h3 class="panel-title">Direct Reports</h3>
                 </div>
@@ -90,7 +90,7 @@
                 @defining( person.getAttributeValues("memberOf").toList.map({ a:String => ldap.getByDistinguishedName(a)}).flatten ) { memberList =>
                 @for(list <- LDAP.listTypes) {
                     @if( memberList.filter( {rec:SearchResultEntry => rec.getAttributeValue("sAMAccountType") == list._1 }).size>0) {
-                        <div class="panel panel-info">
+                        <div class="panel panel-primary">
                             <div class="panel-heading">
                                 <h3 class="panel-title">Member of @(list._2)</h3>
                             </div>
