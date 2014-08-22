@@ -16,7 +16,7 @@
             @header(3, "eMail")
             @header(4, "Phone")
             @header(5, "Alias",Some("hidden-xs hidden-sm hidden-md"))
-            @*   @header(4, "DN")*@
+           @*   @header(6, "DN")@**@
         </tr>
     </thead>
     <tbody>
@@ -30,7 +30,7 @@
             </td>
             <td>@result.getAttributeValue("telephoneNumber")</td>
             <td class="hidden-sm hidden-xs hidden-md">@result.getAttributeValue("sAMAccountName")</td>
-            @*     <td>@result.getAttributeValue("distinguishedName")</td>*@
+         @*        <td>@result.getAttributeValue("distinguishedName")</td> @* *@
         </tr>
     }
     </tbody>

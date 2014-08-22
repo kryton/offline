@@ -75,22 +75,7 @@
                 <div class="panel-body">
 
                     <div class="row">
-                        @fragment.personListing(ldap, person.getAttributeValues("directReports").map { a => ldap.getByDistinguishedName(a).get} )
-                        @*
-                        @for(direct <- person.getAttributeValues("directReports")
-                            .sortWith(_<_)
-                        ) {
-                            <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-
-                            @ldap.getByDistinguishedName(direct).map { dEntry:SearchResultEntry =>
-                                    <a href='@routes.Application.person(dEntry.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(dEntry.getAttributeValue("distinguishedName"))'>
-                                    @dEntry.getAttributeValue("displayName")</a>@if( dEntry.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {*}
-                            }.getOrElse { @direct
-                            }
-                            </div>
-                        }
-                            *@
-
+                        @fragment.personListing(ldap, person.getAttributeValues("directReports").map { a => ldap.getByDistinguishedName(a)}.flatten.toList )
                     </div>
                 </div>
             </div>

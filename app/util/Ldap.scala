@@ -13,7 +13,7 @@ case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: 
   val pool = new LDAPConnectionPool(ldapServerSet, bindRequest, servers.size * 2)
 
   def getByDistinguishedName(dn: String): Option[SearchResultEntry] = {
-    if (dn == null) {
+    if (dn == null || dn.contains(terminatedDN)) {
       None
     } else {
       val connection = pool.getConnection
