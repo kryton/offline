@@ -20,3 +20,4 @@ push.sh
 pull.sh
 build.sh
 run.prod.sh
+public/stylesheets/main.css
