@@ -1,5 +1,5 @@
 @(title: String)(content: Html)
-
+@import  com.typesafe.config.ConfigFactory
 <!DOCTYPE html>
 
 <html  lang="en-US">
@@ -9,10 +9,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Offline: @title</title>
-      @*  <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootswatch-superhero", "bootstrap.min.css"))">
-      *@
-      <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href='@routes.WebJarAssets.at(WebJarAssets.locate("bootswatch","3.2.0/"+ConfigFactory.load().getString("application.theme")+"/bootstrap.min.css"))'>
 
+      @*<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+*@
         @*        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap", "bootstrap-theme.min.css"))">*@
 
 
@@ -33,10 +33,10 @@
 *@
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
-    <script src='@routes.WebJarAssets.at(WebJarAssets.locate("html5shiv.js"))'></script>
-    <script src='@routes.WebJarAssets.at(WebJarAssets.locate("respond.min.js"))'></script>
+    <script src='@routes.WebJarAssets.at(WebJarAssets.locate("html5shiv","html5shiv.js"))'></script>
+    <script src='@routes.WebJarAssets.at(WebJarAssets.locate("respond","respond.min.js"))'></script>
 <![endif]-->
-        <script src="@routes.Assets.at("javascripts/hello.js")" type="text/javascript"></script>
+        @*<script src="@routes.Assets.at("javascripts/hello.js")" type="text/javascript"></script> *@
     </head>
     <body>
         @fragment.navbar()
@@ -44,9 +44,10 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
+<script src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery","jquery.min.js"))'></script>
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="@routes.WebJarAssets.at(WebJarAssets.locate("bootswatch-superhero", "bootstrap.min.js"))"></script>
+<script src='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap" ,"js/bootstrap.min.js"))'></script>
+
 </body>
 </html>

@@ -2,7 +2,7 @@ FROM        ubuntu:14.04
 
 MAINTAINER  Ian Holsman <kryton@gmail.com>
 
-ENV         ACTIVATOR_VERSION 1.2.8
+ENV         ACTIVATOR_VERSION 1.2.10
 ENV         DEBIAN_FRONTEND noninteractive
 
 # INSTALL OS DEPENDENCIES
@@ -30,6 +30,9 @@ ADD         lib /root/lib
 ADD         test /root/test
 ADD         conf /root/conf
 ADD         public /root/public
+ADD         public/javascripts/hello.js /root/public/javascripts/hello.js
+RUN         mkdir -p /root/public/stylesheets/
+ADD         public/stylesheets/main.css /root/public/stylesheets/main.css
 ADD         build.sbt /root/
 ADD         project/plugins.sbt /root/project/
 ADD         project/build.properties /root/project/
