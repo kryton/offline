@@ -25,6 +25,10 @@ RUN         cd /tmp && \
 
 
 # COMMIT PROJECT FILES
+RUN         mkdir -p /root/.m2/repository/org/webjars/bootswatch && \
+            mkdir -p .m2/repository/org/webjars/bootswatch-parent
+ADD         3.2.0-2-SNAPSHOT /root/.m2/repository/org/webjars/bootswatch/3.2.0-2-SNAPSHOT/
+ADD         bootswatch-parent /root/.m2/repository/org/webjars/bootswatch-parent
 ADD         app /root/app
 ADD         lib /root/lib
 ADD         test /root/test
