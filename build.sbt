@@ -28,7 +28,8 @@ libraryDependencies ++= Seq(
   "org.imgscalr" % "imgscalr-lib" % "4.2",
   "com.sksamuel.scrimage" %% "scrimage-core" % "1.4.1",
   "com.sksamuel.scrimage" %% "scrimage-canvas" % "1.4.1",
-  "com.sksamuel.scrimage" %% "scrimage-filters" % "1.4.1"
+  "com.sksamuel.scrimage" %% "scrimage-filters" % "1.4.1",
+  "com.kenshoo" %% "metrics-play" % "2.3.0_0.1.6"
 )
 
 LessKeys.compress in Assets := true

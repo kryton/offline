@@ -19,3 +19,4 @@ GET        /headshot/*name        controllers.ImageC.headShot(name, domain:Optio
 GET        /assets/*file                 controllers.Assets.at(path="/public", file)
 # Map the webjar static assets to the /webjars URL
 GET        /webjars/*file                controllers.WebJarAssets.at(file)
+GET        /admin/metrics                com.kenshoo.play.metrics.MetricsController.metrics

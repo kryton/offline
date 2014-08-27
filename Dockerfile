@@ -49,5 +49,5 @@ RUN         rm /root/target/universal/stage/bin/*.bat
 # TESTS PASSED -- CONFIGURE IMAGE
 WORKDIR     /root
 ENTRYPOINT  target/universal/stage/bin/$(ls target/universal/stage/bin)
-VOLUME      ["/pic/cache","/pic/source"]
+VOLUME      ["/pic/cache","/pic/source", "/root/app/logs"]
 EXPOSE      9000
