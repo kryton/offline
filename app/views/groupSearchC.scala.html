@@ -76,7 +76,7 @@
             </li>
         }
     <li class="current">
-        <a>Displaying @(currentPage.offset + 1) to @if( currentPage.pageSize > currentPage.total) { @currentPage.total } else { @(currentPage.offset + currentPage.pageSize) of @currentPage.total}</a>
+        <a>Displaying @(currentPage.offset + 1) to @if(  (currentPage.offset+currentPage.pageSize) > currentPage.total) { @currentPage.total } else { @(currentPage.offset + currentPage.pageSize) of @currentPage.total}</a>
 
     </li>
         @currentPage.next.map { page =>
