@@ -1,7 +1,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="@routes.Application.index()">Offline</a>
+            <a class="navbar-brand" href="http://drwiki.digitalriverws.net">theCurrent</a>
             <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -11,7 +11,7 @@
         <div class="navbar-collapse collapse " id="navbar-main">
             <ul class="nav navbar-nav">
                 <li><a href="@routes.Application.personSearchCompact()">People</a></li>
-                <li><a href="@routes.Application.groupSearchCompact()">Groups</a></li>
+              @*  <li><a href="@routes.Application.groupSearchCompact()">Groups</a></li>*@
             </ul>
             <form class="navbar-form navbar-right" method="GET" action='@routes.Application.personSearchCompact()'>
                 <input type="text" class="form-control col-lg-6" name="search" placeholder="Search">

@@ -258,6 +258,22 @@ class LDAP {
       server(new DN(dn)).getByDistinguishedName(dn)
     }
   }
+  def getPersonByDistinguishedName(dn: String): Option[SearchResultEntry] = {
+    if (dn == null) {
+      None
+    } else {
+      val result = server(new DN(dn)).getByDistinguishedName(dn)
+      result match {
+        case None => None
+        case Some(matched) => if (matched.getAttributeValue("samAccountType") == LDAP.accountTypePerson ) {
+        //  println(matched.getAttributeValue("distinguishedName") + "-" + matched.getAttributeValue("samAccountType"))
+          Some(matched)
+        } else {
+          None
+        }
+      }
+    }
+  }
 }
 
 object LDAP {
@@ -266,7 +282,7 @@ object LDAP {
   val accountTypeOtherGroup = "268435456"
   val accountTypeAliasObject = "536870912"
   val listTypes = Map(LDAP.accountTypeMailGroup -> "Mailing Lists",
-    LDAP.accountTypeOtherGroup -> "Security Groups",
+    LDAP.accountTypeOtherGroup -> "Roles",
     LDAP.accountTypeAliasObject -> "Aliases"
   )
 

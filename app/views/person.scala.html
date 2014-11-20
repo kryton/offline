@@ -1,6 +1,7 @@
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
-@(ldap: LDAP, person: SearchResultEntry)
+@import models.EmpRelation
+@(ldap: LDAP, person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )])
 
 @main(person.getAttributeValue("displayName")) {
 <div class="container">
@@ -10,19 +11,40 @@
                 <h1>@person.getAttributeValue("displayName")</h1>
                     <div class="row">
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                            @person.getAttributeValue("title")
+                            @if( employee.isDefined) {
+                               @employee.get.position
+                            } else {
+                                @person.getAttributeValue("title")
+                            }
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+                        @if( employee.isDefined) {
+                            @employee.get.companyCodeName
+                        } else {
                             @person.getAttributeValue("company")
+                        }
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <p>Reports to:
-                                @ldap.getByDistinguishedName(person.getAttributeValue("manager")).map  { manager:SearchResultEntry =>
-                                <a href='@routes.Application.person(manager.getAttributeValue("sAMAccountName"))'>
-                                    @manager.getAttributeValue("displayName")</a>
-                                 }.getOrElse{ No Manager }
-                            </p>
+                        @if(employee.isDefined) {
+                                @if(employee.get.managerID.isDefined) {
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <p>Reports to:
+
+                                        <a href='@routes.Application.person(employee.get.managerID.get.toLowerCase)'>
+                                        @ldap.getPersonByAccount(employee.get.managerID.get.toLowerCase, None).head.getAttributeValue("name")
+                                        </a>
+                                    </p>
+                                </div>
+                        }
+                        } else {
+                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            @ldap.getByDistinguishedName(person.getAttributeValue("manager")).map { manager: SearchResultEntry =>
+                            <p>Reports To:<a href='@routes.Application.person(manager.getAttributeValue("sAMAccountName"))'>
+                            @manager.getAttributeValue("displayName")</a>
+                            }.getOrElse { No Manager }
+                        </p>
                         </div>
+                        }
+
                         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                             email: <a href="mailto:@person.getAttributeValue("mail")">@person.getAttributeValue("mail")</a>
                         </div>
@@ -47,11 +69,18 @@
 
                             </div>
                         }
+                        @if(employee.isDefined) {
+                            @if( employee.get.reports >0) {
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    Reports: @employee.get.reports
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-5 col-lg-4">
-                  @* <img src="@routes.Assets.at("images/noFace.jpg")">*@
                    <img class="img-responsive" src='@routes.ImageC.headShot(person.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(person.getAttributeValue("distinguishedName"))' >
+                    This is from your login badge
                 </div>
             </div>
             @if( person.getAttributeValue("msExchHideFromAddressLists")== "TRUE") {
@@ -63,11 +92,88 @@
             }
 
     </div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
-    @if(person.getAttributeValues("directReports")!=null) {
+        <div role="tabpanel">
+            <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+        @if(!directs.isEmpty ) {
+            <li role="presentation" class="active"><a href="#directs" aria-controls="directs" role="tab" data-toggle="tab">
+                Directs</a></li>
+        }  else {
+            <li role="presentation" class="active"><a href="#directs" aria-controls="directs" role="tab" data-toggle="tab">&nbsp;</a></li>
+        }
+            @for(list <- LDAP.listTypes) {
+             <li role="presentation"><a href='#@list._2.replaceAll(" ","_")' aria-controls='@list._2.replaceAll(" ","_")' role="tab" data-toggle="tab">@list._2</a></li>
+            }
+        </ul>
+            <!-- Tab panes -->
+        <div class="tab-content">
+            @if(!directs.isEmpty ) {
+                <div role="tabpanel" class="tab-pane active" id="directs">
+                @fragment.personListing2(ldap, directs )
+                </div>
+            } else {
+                <div role="tabpanel" class="tab-pane active" id="directs">
+             click on tabs above for mailing lists etc.
+                </div>
+            }
+            @defining( person.getAttributeValues("memberOf").toList.map({ a:String => ldap.getByDistinguishedName(a)}).flatten ) { memberList =>
+                @for(list <- LDAP.listTypes) {
+                <div role="tabpanel" class="tab-pane" id='@list._2.replaceAll(" ","_")'>
+<table class="table table-striped">
 
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <thead>
+    <tr><th colspan="4">@list._2</th></tr>
+    </thead>
+
+                    @if( memberList.filter( {rec:SearchResultEntry => rec.getAttributeValue("sAMAccountType") == list._1 }).size>0) {
+                        @for((group,indexN) <- memberList.filter({ rec: SearchResultEntry => rec.getAttributeValue("sAMAccountType") == list._1}).sortBy({
+                            _.getAttributeValue("sAMAccountName")
+                        }).zipWithIndex ) {
+                            @if( indexN % 4 == 0) {
+                                @if( indexN == 0) {
+                                    <tr>
+
+                                } else {
+                                </tr><tr>
+                            }
+                            }
+                            <td>
+                            @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeMailGroup) {
+                                @if(group.getAttributeValue("mailNickname")==null ) {
+                                    <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a>
+                                }else {
+                                    <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("displayName")</a>
+                                }
+                            } else {
+                                @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeOtherGroup) {
+                                    <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))?domain=@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a>
+                                } else {
+                                    @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
+                                        <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))?domain    =@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a>
+                                    } else {
+                                        *@group.getAttributeValue("displayName")
+                                    }
+                                }
+                            }
+                        }
+                    }
+    </tr>
+</table>
+                </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+</div>
+@*
+    @if(!directs.isEmpty ) {
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h3 class="panel-title">Direct Reports</h3>
@@ -75,14 +181,15 @@
                 <div class="panel-body">
 
                     <div class="row">
-                        @fragment.personListing(ldap, person.getAttributeValues("directReports").map { a => ldap.getByDistinguishedName(a)}.flatten.toList )
+                    @fragment.personListing2(ldap, directs )
                     </div>
                 </div>
             </div>
-                </div>
         </div>
-    }
-
+    </div>
+        }
+*@
+    @*
     @if(person.getAttributeValues("memberOf")!=null) {
 
         <div class="row">
@@ -114,7 +221,7 @@
                                             @if(group.getAttributeValue("sAMAccountType") == LDAP.accountTypeAliasObject) {
                                                 <a href='@routes.Application.group(group.getAttributeValue("sAMAccountName"))?domain    =@ldap.domain(group.getAttributeValue("distinguishedName"))'>@group.getAttributeValue("name")</a>
                                             } else {
-                                                *@group.getAttributeValue("displayName")
+                                                * @group.getAttributeValue("displayName")
                                             }
                                         }
                                     }
@@ -133,9 +240,8 @@
     }
 
 </div>
-    <!--
-    @person.getAttributeValue("distinguishedName")
-    -->
+*@
+
 @*
     <div class="container">
         <div class="row">

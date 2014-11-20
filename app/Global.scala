@@ -13,13 +13,13 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
  * Created by iholsman on 11/08/2014.
  */
 object Global extends  WithFilters(CSRFFilter(),SecurityHeadersFilter(), new GzipFilter(), MetricsFilter,AccessLog) {
-
+/*
   override def onError(request: RequestHeader, ex: Throwable) = {
     Future.successful(InternalServerError(
       views.html.errorPage(ex)
     ))
   }
-
+*/
   override def onHandlerNotFound(request: RequestHeader) = {
     Future.successful(NotFound(
       views.html.notFoundPage(request.path)

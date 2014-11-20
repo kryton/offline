@@ -3,20 +3,22 @@
 # ~~~~
 
 # Home page
-GET        /                             controllers.Application.index
+GET         /                      controllers.Application.index
 
-GET        /person/                      controllers.Application.personSearchCompact(p: Int ?= 0, search: Option[String] ?= None )
+GET         /person/               controllers.Application.personSearchCompact(p: Int ?= 0, search: Option[String] ?= None )
 
-GET        /personD/                     controllers.Application.personSearchDetailed(p: Int ?= 0, alias: Option[String] ?= None, email: Option[  String]?= None , name:  Option[String]  ?= None, title:  Option[  String]  ?= None , reportsTo: Option[String] ?= None, phone:  Option[String] ?= None, office: Option[ String] ?= None)
+GET         /personD/              controllers.Application.personSearchDetailed(p: Int ?= 0, alias: Option[String] ?= None, email: Option[  String]?= None , name:  Option[String]  ?= None, title:  Option[  String]  ?= None , reportsTo: Option[String] ?= None, phone:  Option[String] ?= None, office: Option[ String] ?= None)
 
-GET        /person/*name                 controllers.Application.person(name, domain:Option[String] ?= None)
-GET        /group/                       controllers.Application.groupSearchCompact(p: Int ?= 0, search: Option[String] ?= None)
-GET        /group/*name                  controllers.Application.group(name, domain:Option[String] ?= None)
+GET         /person/*name          controllers.Application.person(name, domain:Option[String] ?= None)
+GET         /group/                controllers.Application.groupSearchCompact(p: Int ?= 0, search: Option[String] ?= None)
+GET         /group/*name           controllers.Application.group(name, domain:Option[String] ?= None)
 
 
-GET        /headshot/*name        controllers.ImageC.headShot(name, domain:Option[String] ?= None)
+GET         /headshot/*name        controllers.ImageC.headShot(name, domain:Option[String] ?= None)
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file                 controllers.Assets.at(path="/public", file)
+GET         /assets/*file          controllers.Assets.at(path="/public", file)
 # Map the webjar static assets to the /webjars URL
-GET        /webjars/*file                controllers.WebJarAssets.at(file)
-GET        /admin/metrics                com.kenshoo.play.metrics.MetricsController.metrics
+GET         /webjars/*file         controllers.WebJarAssets.at(file)
+GET         /admin/metrics         com.kenshoo.play.metrics.MetricsController.metrics
+GET         /admin/import          controllers.ImportController.index
+POST        /admin/import          controllers.ImportController.doImport

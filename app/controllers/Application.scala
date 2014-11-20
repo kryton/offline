@@ -3,12 +3,16 @@ package controllers
 import java.net.URLDecoder
 
 import com.unboundid.ldap.sdk.SearchResultEntry
+
 import play.api.data.Form
-import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc._
 import util.{Page, LDAP}
-
+import play.api.db.slick.DBAction
+import play.api.db.slick._
+import play.api.db.slick.Config.driver.simple._
+import scala.concurrent.duration.DurationInt
+import models.EmpRelations
 
 case class personSearchDetailData(alias: Option[String],
                                   email: Option[String],
@@ -23,6 +27,9 @@ case class personSearchCompactData(search: String)
 case class groupSearchCompactData(search: String)
 
 object Application extends Controller {
+  implicit val timeout = 10.seconds
+  val employees = TableQuery[EmpRelations]
+
   val ldap: LDAP = new LDAP
   val personSearchCompactForm = Form(
     mapping(
@@ -120,13 +127,33 @@ object Application extends Controller {
     )
   }
 
-  def person(name: String, domain: Option[String]) = Action {
-    val results = ldap.getPersonByAccount(URLDecoder.decode(name, "UTF-8"),domain)
+  def person(name: String, domain: Option[String]) = DBAction { implicit rs =>
+    val results = ldap.getPersonByAccount(URLDecoder.decode(name, "UTF-8"), domain)
 
-   results.size match {
-      case 1 => Ok(views.html.person(ldap, results.head))
+    results.size match {
+      case 1 =>
+        val employee = employees.filter(_.login === name).firstOption
+        val directsDB = employees.filter(_.managerID === name).list
+        if ( directsDB.isEmpty ) {
+          Ok(views.html.person(ldap, results.head, employee, List.empty))
+        } else {
+          //  val directsLDAP = results.head.getAttributeValues("directReports")
+           // if (directsLDAP != null) {
+              val directsLDAPMap = directsDB.map {
+                x =>  ldap.getPersonByAccount(x.login.toLowerCase,None).headOption
+              }.flatten.map(f => (f.getAttributeValue("sAMAccountName") -> f)).toMap
+              val directsToShow = directsDB.map {
+                emp => directsLDAPMap.get(emp.login.toLowerCase) match {
+                  case None => (emp, None)
+                  case Some(res) => (emp, Some(res))
+                }
+              }
+              Ok(views.html.person(ldap, results.head, employee, directsToShow))
+        }
+
+
       case 0 => NotFound(views.html.notFoundPerson(name))
-      case _ => Redirect(routes.Application.personSearchCompact(0,Some(name)))
+      case _ => Redirect(routes.Application.personSearchCompact(0, Some(name)))
     }
   }
 

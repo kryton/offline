@@ -1,0 +1,33 @@
+@(pageTitle: String)(implicit token: play.filters.csrf.CSRF.Token)
+@import helper._
+
+    @implicitFieldConstructor = @{
+        FieldConstructor(twitterBootstrapInput.f)
+    }
+
+@main(pageTitle) {
+    <div class="container">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <h1>Person Search</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                  @form(action = routes.ImportController.doImport(), 'enctype -> "multipart/form-data") {
+                      @CSRF.formField
+Please link to latest Quickbooks export file from SAP:
+                      <input type="file" name="importFile">
+
+                    <p>
+                       Do Import <input type="submit">
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+}
