@@ -14,6 +14,7 @@ import play.api.db.slick.Config.driver.simple._
 case class QuickBookImport(
                             personNumber: Long,
                             firstName: String,
+                            nickName: Option[String],
                             lastName: String,
                             employeeStatus: String,
                             companyCode: Int,
@@ -39,6 +40,7 @@ case class EmpRelation(
                          personNumber: Long,
                          login: String,
                          firstName: String,
+                         nickName: Option[String],
                          lastName: String,
                          managerID: Option[String],
                          directs: Long,
@@ -66,6 +68,7 @@ class EmpRelations(tag: Tag) extends Table[EmpRelation](tag, "EmpRelations") wit
   def personNumber = column[Long]("PersonNumber", O.NotNull)
   def login = column[String]("Login", O.Nullable)
   def firstName = column[String]("Firstname", O.NotNull)
+  def nickName = column[String]("NickName", O.Nullable)
   def lastName = column[String]("LastName", O.NotNull)
   def managerID = column[String]("ManagerID", O.Nullable)
   def directs = column[Long]("Directs", O.NotNull)
@@ -83,7 +86,8 @@ class EmpRelations(tag: Tag) extends Table[EmpRelation](tag, "EmpRelations") wit
   def executiveName = column[String]("ExecutiveName", O.Nullable)
   def officeLocation = column[String]("OfficeLocation", O.Nullable)
 
-  def * = (personNumber, login, firstName, lastName, managerID.?, directs, reports, reportsContractor, companyCode, companyCodeName,
+  def * = (personNumber, login, firstName, nickName.?, lastName, managerID.?, directs, reports, reportsContractor,
+    companyCode, companyCodeName,
     costCenter, costCenterText, personalArea, personalSubArea, employeeGroup, position, job,
     executiveName.?,  officeLocation.?) <>((EmpRelation.apply _).tupled, EmpRelation.unapply)
 }

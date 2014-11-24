@@ -43,7 +43,9 @@ ADD         project/build.properties /root/project/
 RUN         mkdir  -p /pic/cache  /pic/source && chown 777 /pic/cache /pic/source
 
 # TEST AND BUILD THE PROJECT -- FAILURE WILL HALT IMAGE CREATION
-RUN         cd /root; /usr/local/activator/activator test stage
+#RUN         cd /root; /usr/local/activator/activator test stage
+RUN         cd /root; /usr/local/activator/activator stage
+RUN         cd  /root/conf; cp application.conf.docker application.conf
 RUN         rm /root/target/universal/stage/bin/*.bat
 
 # TESTS PASSED -- CONFIGURE IMAGE

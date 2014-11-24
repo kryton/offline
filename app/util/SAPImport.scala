@@ -70,33 +70,42 @@ object SAPImport {
       line =>
         if (!line.startsWith("Pers No|")) {
           val bits: Array[String] = line.split("\\|", -1) //.drop(1)
-          val mgr = bits(14).trim match {
+          val mgr = bits(15).trim match {
               case "" => None
               case x: String => Some(x)
-            }
-          val mgrID = if (bits.length == 19) None
-          else bits(20).trim match {
+          }
+
+          val mgrID = if (bits.length == 20) None
+          else bits(21).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val empID = bits(18).trim match {
+          val empID = bits(19).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val exec = bits(15).trim match {
+          val exec = bits(16).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val nickName = bits(2).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val workstation = bits(22).trim match {
             case "" => None
             case x: String => Some(x)
           }
 
-          val record = QuickBookImport(toLong(bits(0)).get, bits(1).trim, bits(2).trim, bits(3),
-            toInt(bits(4)).getOrElse(0) /*CompanyCode */ ,
-            bits(5), toLong(bits(6)).getOrElse(0) /* costCenter */ , bits(7), bits(8), bits(9),
-            bits(10), /*skip EmpSubgroup */ bits(12), bits(13).trim, mgr, exec,
-            toDate(bits(16)), None /*TerminationDate*/ ,
+          val record = QuickBookImport(toLong(bits(0)).get, bits(1).trim, nickName, bits(3).trim, bits(4),
+            toInt(bits(5)).getOrElse(0) /*CompanyCode */ ,
+            bits(6), toLong(bits(7)).getOrElse(0) /* costCenter */ , bits(8), bits(9), bits(10),
+            bits(11), /*skip EmpSubgroup */ bits(13), bits(14).trim, mgr, exec,
+            toDate(bits(17)), None /*TerminationDate*/ ,
             empID,
-            toLong(bits(19)),
+            toLong(bits(20)),
             mgrID,
-            None /*officeLocation*/)
+            workstation /*officeLocation*/)
           Some(record)
         } else {
           None
@@ -122,7 +131,7 @@ object SAPImport {
         empRecordO match {
           case Some(empRecord) =>
             val empRel: EmpRelation = EmpRelation(empRecord.personNumber, empRecord.login.get,
-              empRecord.firstName, empRecord.lastName, mgrLogin,
+              empRecord.firstName, empRecord.nickName, empRecord.lastName, mgrLogin,
               empWithCounts._4 /* directs */, empWithCounts._5 /* reports */, empWithCounts._6 /* reportsContractors*/,
               empRecord.companyCode, empRecord.companyCodeName, empRecord.costCenter, empRecord.costCenterText,
               empRecord.personalArea, empRecord.personalSubArea, empRecord.employeeGroup, empRecord.position,

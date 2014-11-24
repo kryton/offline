@@ -51,11 +51,11 @@ object ImportController extends Controller {
 
   def doImport = CSRFCheck {
     DBAction(parse.multipartFormData) { implicit rs =>
-      println("InHere")
+    //  println("InHere")
       rs.request.body.file("importFile").map { file =>
-        println("about to import")
+        //println("about to import")
         val employees = SAPImport.importFile(file.ref.file)
-        println("About to adjust DB")
+      //  println("About to adjust DB")
         play.api.db.slick.DB.withTransaction { implicit session =>
           EmpRelations.repopulate(employees)
         }

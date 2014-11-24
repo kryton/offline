@@ -47,7 +47,11 @@
                 }else {
                     <td><a href='@routes.Application.person(result._1.login)'>@result._1.name</a></td>
                     <td class="hidden-sm hidden-xs">@result._1.position</td>
-                    <td class="hidden-sm hidden-xs" align="right">@result._1.reports</td>
+                    @if(result._1.reports >0) {
+                        <td class="hidden-sm hidden-xs" align="right">@result._1.reports</td>
+                    } else {
+                        <td class="hidden-sm hidden-xs">&nbsp;</td>
+                    }
 
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
