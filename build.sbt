@@ -10,7 +10,7 @@ resolvers += (
     "Local Maven Repository" at "file:///" + Path.userHome.absolutePath + "/.m2/repository"
     )
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 libraryDependencies ++= Seq(
     filters,
