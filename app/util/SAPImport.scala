@@ -14,7 +14,7 @@ import scala.io.{BufferedSource, Codec}
  */
 object SAPImport {
   def main(args: Array[String]) {
-    val file = new URI("file:///Users/iholsman/Documents/SAPWork/Final%2011-07-2014.txt")
+    val file = new URI("file:///Users/iholsman/Documents/SAPWork/Final%2011-21-2014.txt")
     val employees = importFile(file)
     employees.foreach(x => println(s"${x.login},${x.managerID.getOrElse("-")},${x.reports},${x.name}"))
   }
@@ -113,14 +113,14 @@ object SAPImport {
     }.flatten.toList
     val byId = employees.map(x => x.personNumber -> x).toMap
 
-    val v = employees.map(x => (x.managerID, x.login.get, x.personNumber, 0,0,0, x.personalSubArea))
+    val v = employees.map(x =>MgrHeirarchy (x.managerID, x.login.get, x.personNumber, 0,0,0, x.personalSubArea))
 
     val v2 = genTree(v)
 
     val empRels = v2.map {
       empWithCounts =>
-        val empRecordO = byId.get(empWithCounts._3)
-        val mgrRecord = byId.get(empWithCounts._1.getOrElse(0L))
+        val empRecordO = byId.get(empWithCounts.personNumber)
+        val mgrRecord = byId.get(empWithCounts.managerID.getOrElse(0L))
 
         val mgrLogin = mgrRecord match {
           case Some(x) => x.login
@@ -132,7 +132,7 @@ object SAPImport {
           case Some(empRecord) =>
             val empRel: EmpRelation = EmpRelation(empRecord.personNumber, empRecord.login.get,
               empRecord.firstName, empRecord.nickName, empRecord.lastName, mgrLogin,
-              empWithCounts._4 /* directs */, empWithCounts._5 /* reports */, empWithCounts._6 /* reportsContractors*/,
+              empWithCounts.r1 /* directs */, empWithCounts.r2 /* reports */, empWithCounts.r3 /* reportsContractors*/,
               empRecord.companyCode, empRecord.companyCodeName, empRecord.costCenter, empRecord.costCenterText,
               empRecord.personalArea, empRecord.personalSubArea, empRecord.employeeGroup, empRecord.position,
               empRecord.job,
@@ -145,28 +145,28 @@ object SAPImport {
 
   }
 
-
-  def genTree(employees: List[(Option[Long], String, Long, Int,Int,Int,String)], i: Int = 1): List[(Option[Long], String, Long, Int,Int,Int,String)] = {
-    val mgrs2 = employees.groupBy(_._1)
-    val mgrs = mgrs2.map(x => x._1 -> (x._2.length + x._2.map(_._4).sum)).toMap
+case class MgrHeirarchy(managerID:Option[Long],login:String,personNumber:Long,r1:Int,r2:Int,r3:Int,empGroup:String)
+  def genTree(employees: List[MgrHeirarchy], i: Int = 1): List[MgrHeirarchy] = {
+    val mgrs2 = employees.groupBy(_.managerID)
+    val mgrs = mgrs2.map(x => x._1 -> (x._2.length + x._2.map(_.r1).sum)).toMap
     //mgrs2.filter(x => x._1 == Some("Jina Fritz")).foreach(x => println(s"$i MGR Jina - "+ x._2.map( y => y._2 + " "+ y._4 )))
    // val foo = employees.count( x=> x._1 == Some(4603))
    // println(foo)
     // Add Direct reports in here
-    val noReports = employees.filter(emp => mgrs.get(Some(emp._3)).isEmpty).map(
-       x => (x._1, x._2, x._3, employees.count( y=> y._1 == Some( x._3)), x._5, x._6, x._7)
+    val noReports = employees.filter(emp => mgrs.get(Some(emp.personNumber)).isEmpty).map(
+       x => MgrHeirarchy(x.managerID, x.login, x.personNumber, employees.count( y=> y.managerID == Some( x.personNumber)), x.r2, x.r3, x.empGroup)
     )
-    val reports = employees.filter(emp => mgrs.get(Some(emp._3)).isDefined).map(
-      emp2 => (emp2._1, emp2._2, emp2._3,
-        noReports.filter(x => x._1 == Some(emp2._3)).map(y => y._5).sum + noReports.count(x => x._1 == Some(emp2._3)), /* directs */
-        emp2._5 + noReports.filter(x => x._1 == Some(emp2._3)).map(y => y._5).sum + noReports.count(x => x._1 == Some(emp2._3)), /*all*/
-        emp2._6 + noReports.filter(x => x._1 == Some(emp2._3) && x._7.equalsIgnoreCase("Contract")).map(y => y._6).sum ,
-        emp2._7
+    val reports = employees.filter(emp => mgrs.get(Some(emp.personNumber)).isDefined).map(
+      emp2 => MgrHeirarchy(emp2.managerID, emp2.login, emp2.personNumber,
+        noReports.filter(x => x.managerID == Some(emp2.personNumber)).map(y => y.r2).sum + noReports.count(x => x.managerID == Some(emp2.personNumber)), /* directs */
+        emp2.r2 + noReports.filter(x => x.managerID == Some(emp2.personNumber)).map(y => y.r2).sum + noReports.count(x => x.managerID == Some(emp2.personNumber)), /*all*/
+        emp2.r3 + noReports.filter(x => x.managerID == Some(emp2.personNumber) && x.empGroup.equalsIgnoreCase("Contract")).map(y => y.r3).sum ,
+        emp2.empGroup
         )
     )
 
 
-    reports.count(x => x._1.isDefined) match {
+    reports.count(x => x.managerID.isDefined) match {
       case 0 => reports ::: noReports
       case _ => genTree(reports, i + 1) ::: noReports
     }
