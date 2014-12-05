@@ -96,6 +96,10 @@ object SAPImport {
             case "" => None
             case x: String => Some(x)
           }
+          val employeeType = bits(23).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
 
           val record = QuickBookImport(toLong(bits(0)).get, bits(1).trim, nickName, bits(3).trim, bits(4),
             toInt(bits(5)).getOrElse(0) /*CompanyCode */ ,
@@ -105,7 +109,8 @@ object SAPImport {
             empID,
             toLong(bits(20)),
             mgrID,
-            workstation /*officeLocation*/)
+            workstation,
+            employeeType)
           Some(record)
         } else {
           None
@@ -113,7 +118,7 @@ object SAPImport {
     }.flatten.toList
     val byId = employees.map(x => x.personNumber -> x).toMap
 
-    val v = employees.map(x =>MgrHeirarchy (x.managerID, x.login.get, x.personNumber, 0,0,0, x.employeeGroup))
+    val v = employees.map(x =>MgrHeirarchy (x.managerID, x.login.get, x.personNumber, 0,0,0, x.isFTE))
 
     val v2 = genTree(v)
 
@@ -136,7 +141,7 @@ object SAPImport {
               empRecord.companyCode, empRecord.companyCodeName, empRecord.costCenter, empRecord.costCenterText,
               empRecord.personalArea, empRecord.personalSubArea, empRecord.employeeGroup, empRecord.position,
               empRecord.job,
-              empRecord.executiveName, empRecord.officeLocation)
+              empRecord.executiveName, empRecord.officeLocation, empRecord.employeeType)
             Some(empRel)
           case None => None
         }
@@ -145,7 +150,8 @@ object SAPImport {
 
   }
 
-case class MgrHeirarchy(managerID:Option[Long],login:String,personNumber:Long,directs:Int,reports:Int,reportsContractors:Int,empGroup:String)
+case class MgrHeirarchy(managerID:Option[Long],login:String,personNumber:Long,directs:Int,reports:Int,reportsContractors:Int,isFTE:Boolean)
+
   def genTree(employees: List[MgrHeirarchy], i: Int = 1): List[MgrHeirarchy] = {
     val mgrs2 = employees.groupBy(_.managerID)
     val mgrs = mgrs2.map(x => x._1 -> (x._2.length + x._2.map(_.directs).sum)).toMap
@@ -158,7 +164,7 @@ case class MgrHeirarchy(managerID:Option[Long],login:String,personNumber:Long,di
          x.directs + employees.count( y=> y.managerID == Some( x.personNumber)) +0,
          x.reports,
          x.reportsContractors,
-         x.empGroup)
+         x.isFTE)
     )
     val reports = employees.filter(emp => mgrs.get(Some(emp.personNumber)).isDefined).map(
       emp2 => MgrHeirarchy(emp2.managerID, emp2.login, emp2.personNumber,
@@ -166,8 +172,8 @@ case class MgrHeirarchy(managerID:Option[Long],login:String,personNumber:Long,di
         emp2.reports + noReports.filter(x => x.managerID == Some(emp2.personNumber)).map(y => y.reports).sum +
                        noReports.count(x => x.managerID == Some(emp2.personNumber)), /*all*/
         emp2.reportsContractors + noReports.filter(x => x.managerID == Some(emp2.personNumber)).map(y => y.reportsContractors).sum +
-                       noReports.count(x => x.managerID == Some(emp2.personNumber)&& x.empGroup.equalsIgnoreCase("External employee")),
-        emp2.empGroup
+                       noReports.count(x => x.managerID == Some(emp2.personNumber)&& !x.isFTE),
+        emp2.isFTE
         )
     )
 

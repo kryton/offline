@@ -33,8 +33,14 @@ case class QuickBookImport(
                             login: Option[String],
                             managerID: Option[Long],
                             managerLogin: Option[String],
-                            officeLocation: Option[String]
-                            )
+                            officeLocation: Option[String],
+                            employeeType:Option[String]
+                            ) {
+  def isFTE: Boolean = {
+    !employeeGroup.equalsIgnoreCase("External employee")
+  }
+
+}
 
 case class EmpRelation(
                          personNumber: Long,
@@ -56,17 +62,20 @@ case class EmpRelation(
                          position: String,
                          job: String,
                          executiveName: Option[String],
-                         officeLocation: Option[String]
+                         officeLocation: Option[String],
+                         employeeType:Option[String]
                          ) {
   def name: String = {
     firstName + " " + lastName
   }
   def FTEs: Long = {
-    if ( reports > 0) {
-      ( reports - reportsContractor)
-    } else {
+    if ( reports > 0) reports - reportsContractor
+    else {
       0L
     }
+  }
+  def isFTE: Boolean = {
+    employeeGroup.equalsIgnoreCase("External employee")
   }
 }
 
@@ -92,11 +101,12 @@ class EmpRelations(tag: Tag) extends Table[EmpRelation](tag, "EmpRelations") wit
   def job = column[String]("Job", O.NotNull)
   def executiveName = column[String]("ExecutiveName", O.Nullable)
   def officeLocation = column[String]("OfficeLocation", O.Nullable)
+  def employeeType = column[String]("EmployeeType", O.Nullable)
 
   def * = (personNumber, login, firstName, nickName.?, lastName, managerID.?, directs, reports, reportsContractor,
     companyCode, companyCodeName,
     costCenter, costCenterText, personalArea, personalSubArea, employeeGroup, position, job,
-    executiveName.?,  officeLocation.?) <>((EmpRelation.apply _).tupled, EmpRelation.unapply)
+    executiveName.?,  officeLocation.?, employeeType.?) <>((EmpRelation.apply _).tupled, EmpRelation.unapply)
 }
 
 object EmpRelations {

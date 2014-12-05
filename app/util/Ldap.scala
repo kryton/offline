@@ -37,7 +37,7 @@ case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: 
 
   def search(searchFilter: Filter): List[SearchResultEntry] = {
     val searchRequest: SearchRequest = new SearchRequest(this.baseDN.toString, SearchScope.SUB, searchFilter)
-    Logger.debug("search:"+domain+"\t"+searchFilter)
+  //  Logger.debug("search:"+domain+"\t"+searchFilter)
     val connection = pool.getConnection
     try {
       val searchResult: SearchResult = connection.search(searchRequest)
@@ -65,7 +65,7 @@ case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: 
 class LDAP {
   val mainDN = ConfigFactory.load().getString("ldap.mainDomain")
   val serverMap: Map[String, LDAPServer] = {
-    System.err.println("Rebuilding LDAP connections")
+    Logger.info("Rebuilding LDAP connections")
     val port = ConfigFactory.load().getInt("ldap.port")
     val servers = ConfigFactory.load().getConfigList("ldap.servers") map {
       p => LDAPServer(p.getString("domain"),
@@ -89,7 +89,7 @@ class LDAP {
       val server: LDAPServer = availableServers.head._2
       server
     } else {
-      System.err.println("LDAP:Couldn't find a match for :" + dn)
+      Logger.error("LDAP:Couldn't find a match for :" + dn)
       val server = serverMap(mainDN)
       server
     }
@@ -266,7 +266,6 @@ class LDAP {
       result match {
         case None => None
         case Some(matched) => if (matched.getAttributeValue("samAccountType") == LDAP.accountTypePerson ) {
-        //  println(matched.getAttributeValue("distinguishedName") + "-" + matched.getAttributeValue("samAccountType"))
           Some(matched)
         } else {
           None
@@ -293,6 +292,6 @@ object testLDAP extends App {
   val ldap: LDAP = new LDAP
 
   val people = ldap.personSearchDetailed(Some("iholsman"), Some("ihol"), None, None, None, None, Some("hols"))
-  System.out.println("Results")
+  Logger.info("Results")
   System.out.println(people)
 }
