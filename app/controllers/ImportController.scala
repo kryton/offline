@@ -56,8 +56,13 @@ object ImportController extends Controller {
         //println("about to import")
         val employees = SAPImport.importFile(file.ref.file)
       //  println("About to adjust DB")
-        play.api.db.slick.DB.withTransaction { implicit session =>
-          EmpRelations.repopulate(employees)
+        if ( employees.length < 500) {
+          InternalServerError(s"This Failed only ${employees.length} records returned. It should be larger than 500")
+        } else {
+          play.api.db.slick.DB.withTransaction { implicit session =>
+            EmpRelations.repopulate(employees)
+            Ok("done")
+          }
         }
         //employees.foreach(x => println(s"${x.login} - ${x.mangerID.getOrElse("_")} - ${x.reports} - ${x.name}"))
       }

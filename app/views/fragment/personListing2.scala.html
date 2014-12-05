@@ -13,7 +13,7 @@
         <tr>
             @header(1, "Name")
             @header(2, "Title",Some("hidden-xs hidden-sm"))
-            @header(3, "Reports")
+            @header(3, "Reports",Some("hidden-xs hidden-sm"))
             @header(3, "eMail")
             @header(4, "Phone")
            @* @header(5, "Alias",Some("hidden-xs hidden-sm hidden-md"))*@
@@ -33,7 +33,7 @@
                     *@
                     <td class="hidden-sm hidden-xs">@result._1.position</td>
                     @if(result._1.reports >0)   {
-                        <td class="hidden-sm hidden-xs" align="right">@result._1.reports</td>
+                        <td class="hidden-sm hidden-xs" align="right">@result._1.FTEs  @if( result._1.reportsContractor>0) {(@result._1.reportsContractor)}</td>
                     } else {
                     <td class="hidden-sm hidden-xs">&nbsp;</td>
                     }

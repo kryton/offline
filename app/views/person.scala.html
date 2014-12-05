@@ -84,7 +84,10 @@
                         @if(employee.isDefined) {
                             @if( employee.get.reports >0) {
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    Reports: @employee.get.reports
+                                    Reports: @employee.get.FTEs
+                                    @if( employee.get.reportsContractor > 0 ) {
+                                        (@employee.get.reportsContractor Contractors)
+                                    }
                                 </div>
                             }
                         }

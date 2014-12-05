@@ -61,6 +61,13 @@ case class EmpRelation(
   def name: String = {
     firstName + " " + lastName
   }
+  def FTEs: Long = {
+    if ( reports > 0) {
+      ( reports - reportsContractor)
+    } else {
+      0L
+    }
+  }
 }
 
 
