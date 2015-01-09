@@ -9,12 +9,13 @@ import javax.imageio.{IIOImage, ImageWriteParam, ImageIO}
 import com.sksamuel.scrimage.io.JpegWriter
 import com.sksamuel.scrimage.{Format, Image}
 import com.typesafe.config.ConfigFactory
+import controllers.Application._
 import org.imgscalr.Scalr
 import play.api.Logger
 import play.api.http.Writeable
 import play.api.libs.iteratee.Enumerator
 import play.api.mvc.{ResponseHeader, Result, Action, Controller}
-import util.{FaceDetect, LDAP}
+import util.{Page, FaceDetect, LDAP}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
@@ -31,15 +32,27 @@ object ImageC extends Controller {
   val ldap: LDAP = Application.ldap
 
   def findPicInDir(directoryName: String, firstName: String, surname: String): Option[String] = {
-    def FNFilter(filename: String) = filename.toLowerCase.startsWith(firstName) && filename.toLowerCase.contains(surname)
-
-    val rawFileList = new File(directoryName).list.filter(FNFilter)
-    if (rawFileList.nonEmpty) {
-      Some(rawFileList.last)
+    val theList = getMatchingPics(directoryName,firstName, surname)
+    if (theList.nonEmpty) {
+      Some(theList.last)
     } else {
       None
     }
   }
+  def getNextPicNamePrefix(directoryName: String, firstName: String, surname: String):String = {
+    val theList = getMatchingPics(directoryName,firstName, surname)
+    val count = theList.length
+   // String.format("%s %s %d", firstName, surname, count+1)
+    s"$firstName $surname ${count+1}"
+
+  }
+  def getMatchingPics(directoryName: String, firstName: String, surname: String): List[String] = {
+    def FNFilter(filename: String) = filename.toLowerCase.startsWith(firstName) && filename.toLowerCase.contains(surname)
+
+    new File(directoryName).list.filter(FNFilter).sortWith(_>_).toList
+  }
+
+
   def genImage(dir: String, file: String): Some[JpegWriter] = {
     val inImage: BufferedImage = ImageIO.read(new File(dir + "/" + file))
     val theFace = FaceDetect.findFaces(inImage, 1, 40)
@@ -104,9 +117,23 @@ object ImageC extends Controller {
       }
       case _ => Redirect(routes.Assets.at("images/noFace.jpg"))
     }
-
-
   }
-
+ // def editImage(alias: String, domain:Option[String]) = Action { implicit request =>
+  def editImage(page: Int, search: Option[String]) = Action { implicit request =>
+    personSearchCompactForm.bindFromRequest.fold(
+      formWithErrors => {
+        // binding failure, you retrieve the form containing errors:
+        BadRequest(views.html.groupSearchC(ldap, groupSearchCompactForm, Page(null, 1, 0, 0, pageSize)))
+      },
+      groupSearchCompactData => {
+        /* binding success, you get the actual value. */
+        val searchText = groupSearchCompactData.search
+        val results = ldap.groupSearchCompact(searchText)
+        val offset = pageSize * page
+        val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
+        Ok(views.html.groupSearchC(ldap, groupSearchCompactForm.bindFromRequest(), pageList))
+      }
+    )
+  }
 }
 

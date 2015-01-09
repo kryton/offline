@@ -3,7 +3,8 @@ package util
 import com.typesafe.config.ConfigFactory
 import com.unboundid.ldap.sdk._
 import play.Logger
-import collection.JavaConversions._
+
+import scala.collection.JavaConversions._
 
 case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: DN,
                       user: String, pass: String, ignoreList: List[DN],
@@ -33,11 +34,33 @@ case class LDAPServer(domain: String, servers: List[String], port: Int, baseDN: 
           None
       }
     }
+
+  }
+  def authenticate(userDn: String, userPass: String): Boolean = {
+
+    val ldapConnection = new LDAPConnection(servers.head, port)
+    try {
+      val bindResult = ldapConnection.bind(userDn, userPass)
+      if (bindResult.getResultCode.eq(ResultCode.SUCCESS)) {
+        true
+      } else {
+        false
+      }
+    } catch {
+      case e: LDAPException => System.out.println("woops")
+        if (!e.getResultCode.eq(ResultCode.INVALID_CREDENTIALS)) {
+          Logger.error(s"trying to authenticate user $userDn", e)
+        }
+        false
+    }
+    finally {
+      ldapConnection.close()
+    }
   }
 
   def search(searchFilter: Filter): List[SearchResultEntry] = {
     val searchRequest: SearchRequest = new SearchRequest(this.baseDN.toString, SearchScope.SUB, searchFilter)
-  //  Logger.debug("search:"+domain+"\t"+searchFilter)
+    //  Logger.debug("search:"+domain+"\t"+searchFilter)
     val connection = pool.getConnection
     try {
       val searchResult: SearchResult = connection.search(searchRequest)
@@ -94,8 +117,9 @@ class LDAP {
       server
     }
   }
+
   def domain(dn: String): String = {
-    server( new DN(dn)).domain
+    server(new DN(dn)).domain
   }
 
   def getPersonByAccount(accountName: String, domain: Option[String] = None): List[SearchResultEntry] = {
@@ -109,15 +133,27 @@ class LDAP {
     }
   }
 
+  def authenticateAccount(accountName: String, password:String): Boolean = {
+    val r = getPersonByAccount(accountName)
+    r.headOption match {
+      case Some(x) => val dn = x.getDN
+        val authServer: LDAPServer = server(new DN(dn))
+        authServer.authenticate(dn, password)
+      case None => Logger.error(s"User $accountName not found")
+        false
+    }
+   // false
+  }
+
   def getGroupsByAccount(accountName: String, domain: Option[String] = None): List[SearchResultEntry] = {
 
     val searchFilter = Filter.createORFilter(
       Filter.createANDFilter(
         Filter.createEqualityFilter("samAccountType", LDAP.accountTypeMailGroup),
-      //  Filter.createORFilter(
-          Filter.createEqualityFilter("sAMAccountName", accountName)
-  //        ,Filter.createEqualityFilter("mailNickname", accountName)
-  //      )
+        //  Filter.createORFilter(
+        Filter.createEqualityFilter("sAMAccountName", accountName)
+        //        ,Filter.createEqualityFilter("mailNickname", accountName)
+        //      )
       ),
       Filter.createANDFilter(
         Filter.createEqualityFilter("samAccountType", LDAP.accountTypeOtherGroup),
@@ -258,6 +294,7 @@ class LDAP {
       server(new DN(dn)).getByDistinguishedName(dn)
     }
   }
+
   def getPersonByDistinguishedName(dn: String): Option[SearchResultEntry] = {
     if (dn == null) {
       None
@@ -265,7 +302,7 @@ class LDAP {
       val result = server(new DN(dn)).getByDistinguishedName(dn)
       result match {
         case None => None
-        case Some(matched) => if (matched.getAttributeValue("samAccountType") == LDAP.accountTypePerson ) {
+        case Some(matched) => if (matched.getAttributeValue("samAccountType") == LDAP.accountTypePerson) {
           Some(matched)
         } else {
           None
@@ -291,7 +328,11 @@ object LDAP {
 object testLDAP extends App {
   val ldap: LDAP = new LDAP
 
-  val people = ldap.personSearchDetailed(Some("iholsman"), Some("ihol"), None, None, None, None, Some("hols"))
-  Logger.info("Results")
-  System.out.println(people)
+  //  val people = ldap.personSearchDetailed(Some("iholsman"), Some("ihol"), None, None, None, None, Some("hols"))
+  // println("Results")
+  // people.foreach(println)
+  // System.out.println(people)
+
+  val r = ldap.authenticateAccount("iholsman","XYZsldfjsl")
+  System.out.println(s"IHOLSMAN AUTH = $r")
 }

@@ -11,7 +11,9 @@ import util.{Page, LDAP}
 import play.api.db.slick.DBAction
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.mvc.Security.Authenticated
 import scala.concurrent.duration.DurationInt
+
 import models.EmpRelations
 
 case class personSearchDetailData(alias: Option[String],

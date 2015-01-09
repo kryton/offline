@@ -2,6 +2,7 @@
 logs
 project/project
 project/target
+project/.idea
 conf/application.conf
 target
 tmp
@@ -9,6 +10,7 @@ tmp
 dist
 /.idea
 /*.iml
+/offline*sql
 /out
 /.idea_modules
 /.classpath

@@ -1,3 +1,4 @@
+import filters.LdapAuthFilter
 import play.api.mvc.WithFilters
 import play.filters.csrf.CSRFFilter
 import play.filters.gzip.GzipFilter
@@ -12,7 +13,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 /**
  * Created by iholsman on 11/08/2014.
  */
-object Global extends  WithFilters(CSRFFilter(),SecurityHeadersFilter(), new GzipFilter(), MetricsFilter,AccessLog) {
+object Global extends  WithFilters(CSRFFilter(),SecurityHeadersFilter(), new GzipFilter(), MetricsFilter,AccessLog /*, LdapAuthFilter*/) {
 /*
   override def onError(request: RequestHeader, ex: Throwable) = {
     Future.successful(InternalServerError(
@@ -20,6 +21,7 @@ object Global extends  WithFilters(CSRFFilter(),SecurityHeadersFilter(), new Gzi
     ))
   }
 */
+
   override def onHandlerNotFound(request: RequestHeader) = {
     Future.successful(NotFound(
       views.html.notFoundPage(request.path)

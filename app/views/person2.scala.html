@@ -1,11 +1,14 @@
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
 @import models.EmpRelation
-@(ldap: LDAP, person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )])
+@(ldap: LDAP, userName:String , person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )])
 
 @main(person.getAttributeValue("displayName")) {
+
 <div class="container">
         <div class="page-header @if( person.getAttributeValue("msExchHideFromAddressLists") == "TRUE") {alert-warning} " id="banner">
+            <h1>User --- @userName </h1>
+
             <div class="row">
                 <div class="col-xs-12 col-sm-8 col-md-7 col-lg-8">
                     @if( employee.isDefined) {
