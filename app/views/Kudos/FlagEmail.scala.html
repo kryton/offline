@@ -1,0 +1,26 @@
+@(obj:KudosToPerson,login:String, reason:String, host:String, url:String)
+<H1>THIS IS A TEST. PLEASE IGNORE.</H1>
+<h1>A Kudos was flagged as Inappropriate</h1>
+<p>
+    The following Kudos for @obj.toPerson was flagged as being inappropriate by <strong>@login</strong> (not-validated)
+    for the following reason: @reason.
+
+</p>
+<h2>The Kudos in Question</h2>
+<p>
+   received for @obj.toPerson on @obj.dateAdded
+<strong>@obj.fromPerson</strong> wrote the following:
+
+</p>
+<p><b>@obj.feedback</b></p>
+
+<h2>Action Required</h2>
+ <p>If you find this inappropriate, please have a quick sync up with your employee on the matter.
+</p>
+<p>
+    The administrators (CC'd), can visit <a href="@host@url">The moderation page</a> to flag the comment for removal.
+    If the comment is still visible after 24 hours, please contact them for further action.
+
+    Thanks!
+
+ </p>

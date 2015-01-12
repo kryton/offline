@@ -1,0 +1,43 @@
+@(kudo:KudosToPerson,theForm: Form[FlagData])(implicit token: play.filters.csrf.CSRF.Token, s: slick.driver.MySQLDriver.simple.Session)
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f)}
+
+
+@main("Role-Self-Service") {
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <h1>Flag feedback for moderation</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <p>
+                    The following will generate an email to the administrators for them to review the content of the Kudos.
+                    If the comment is seen to be inappropriate it will be flagged.
+                </p>
+                <p>The feedback in question is from @kudo.fromPerson to @kudo.toPerson </p>
+                <p>@kudo.feedback</p>
+</div></div>
+        <div class="row">
+            <div class="col-md-8">
+                @form(routes.Kudos.flagSend(kudo.toPerson, kudo.id.get)) {
+                    @CSRF.formField
+                    <fieldset>
+                        @inputText(theForm("login"), '_label -> "your login", 'class -> "form-control")
+                        @textarea(theForm("compliant"), '_label -> "your reason for flagging this Kudos", 'class -> "form-control")
+
+                    </fieldset>
+                    <div class="actions">
+                        <input type="submit" value="Flag" class="btn btn-primary"> or
+                        <a href="@routes.Application.person(kudo.toPerson)" class="btn btn-default">Cancel</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

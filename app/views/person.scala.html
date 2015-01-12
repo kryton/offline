@@ -200,6 +200,7 @@
                         <th>From</th>
                         <th>Date</th>
                         <th>Kudos!</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -208,6 +209,8 @@
                             <td><a href='@routes.Application.person(kudo.fromPerson)'>@kudo.fromPerson</a></td>
                             <td>@kudo.dateAdded</td>
                             <td>@kudo.feedback</td>
+                            <td><a href='@routes.Kudos.edit(kudo.toPerson,kudo.id.get)'><i class="fa fa-pencil-square-o"></i></a>
+                                <a href='@routes.Kudos.flag(kudo.toPerson,kudo.id.get)'><i class="fa fa-flag"></i></a></td>
                         </tr>
                     }
                     </tbody>
@@ -221,6 +224,7 @@
                             <th>From</th>
                             <th>Date</th>
                             <th>Kudos!</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -229,6 +233,9 @@
                                 <td><a href='@routes.Application.person(kudo.toPerson)'>@kudo.toPerson</a></td>
                                 <td>@kudo.dateAdded</td>
                                 <td>@kudo.feedback</td>
+                                <td><a href='@routes.Kudos.edit(kudo.toPerson,kudo.id.get)'><i class="fa fa-pencil-square-o"></i></a>
+                                    <a href='@routes.Kudos.flag(kudo.toPerson,kudo.id.get)'><i class="fa fa-flag"></i></a></td>
+
                             </tr>
                         }
                     </tbody>

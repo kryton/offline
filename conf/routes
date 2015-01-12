@@ -23,6 +23,7 @@ GET         /logout                             controllers.Kudos.logout()
 GET         /person/:login/kudosFrom/            controllers.Kudos.kudosFrom(login:String,p: Int ?= 0)
 GET         /person/:login/kudosTo/              controllers.Kudos.kudosTo(login:String,p: Int ?= 0)
 GET         /kudos/                              controllers.Kudos.kudosList(size: Int ?= 10)
+
 GET         /kudos/:login/new                    controllers.Kudos.create(login:String)
 POST        /kudos/:login/save                   controllers.Kudos.save(login:String)
 GET         /kudos/:login/:kudos                 controllers.Kudos.id(login:String, kudos:Long)
@@ -31,7 +32,8 @@ POST        /kudos/:login/:kudos/edit            controllers.Kudos.update(login:
 GET         /kudos/:login/:kudos/moderate        controllers.Kudos.moderate(login:String, kudos:Long)
 POST        /kudos/:login/:kudos/moderate        controllers.Kudos.moderateUpdate(login:String, kudos:Long)
 POST        /kudos/:login/:kudos/delete          controllers.Kudos.delete(login:String, kudos:Long)
-
+GET         /kudos/:login/:kudos/flag            controllers.Kudos.flag(login:String, kudos:Long)
+POST        /kudos/:login/:kudos/flag            controllers.Kudos.flagSend(login:String, kudos:Long)
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                        controllers.Assets.at(path="/public", file)
 # Map the webjar static assets to the /webjars URL

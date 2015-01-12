@@ -55,6 +55,7 @@ case class LDAPAuthAction[A](action: Action[A]) extends Action[A] {
   lazy val parser = action.parser
 }
 
+case class FlagData(login: String, complaint: String)
 
 object Kudos extends Controller {
   implicit val timeout = 10.seconds
@@ -83,7 +84,6 @@ object Kudos extends Controller {
 
     )(KudosToPerson.apply)(KudosToPerson.unapply)
   )
-
 
   def kudosList(size: Int) = LDAPAuthAction {
     DBAction { implicit rs =>
@@ -164,7 +164,7 @@ object Kudos extends Controller {
                   if (user.toLowerCase == thing.fromPerson.toLowerCase) {
                     Ok(views.html.Kudos.CRUD.editForm(emp, id, theForm.fill(thing)))
                   } else {
-                    NotFound("please edit your own Kudos")
+                    NotFound("Sorry, you can only edit your own Kudos")
                   }
                 case None => NotFound("user Not Found")
               }
@@ -256,7 +256,48 @@ object Kudos extends Controller {
       }
     }
   }
-  def logout() =  Action {
-     Results.Unauthorized.withHeaders(("WWW-Authenticate", "Basic realm=\"use your Digital River Login please\""))
+
+  def logout() = Action {
+    Results.Unauthorized.withHeaders(("WWW-Authenticate", "Basic realm=\"use your Digital River Login please\""))
+  }
+
+
+  val flagForm = Form(
+    mapping("login" -> text, "compliant" -> text
+    )(FlagData.apply)(FlagData.unapply)
+  )
+
+
+  def flag(login: String, id: Long) = CSRFCheck {
+    DBAction { implicit rs =>
+
+      KudosToPeople.findById(login, id) match {
+        case None => NotFound("Not Found")
+        case Some(thing) =>
+          Ok(views.html.Kudos.flagForm(thing, flagForm))
+
+      }
+    }
+  }
+
+  def flagSend(login: String, id: Long) = CSRFCheck {
+    DBAction { implicit rs =>
+      KudosToPeople.findById(login, id) match {
+        case None => NotFound("Not Found")
+        case Some(thing) =>
+          flagForm.bindFromRequest.fold(
+            formWithErrors => BadRequest(views.html.Kudos.flagForm(thing, flagForm.bindFromRequest)),
+            obj => {
+              EmpRelations.findByLogin(thing.fromPerson) match {
+                case None =>   KudosToPeople.genFlaggedEmail(thing,None,obj.login, obj.complaint)
+                case Some(emp) => KudosToPeople.genFlaggedEmail(thing,emp.managerID,obj.login, obj.complaint)
+              }
+
+              Redirect(routes.Application.person(login))
+            })
+      }
+      Ok("")
+
+    }
   }
 }
