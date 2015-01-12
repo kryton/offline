@@ -1,0 +1,48 @@
+@(emp:EmpRelation, id: Long, theForm: Form[KudosToPerson])(implicit token: play.filters.csrf.CSRF.Token, s: slick.driver.MySQLDriver.simple.Session)
+
+@import helper._
+
+    @implicitFieldConstructor = @{
+        FieldConstructor(twitterBootstrapInput.f)
+    }
+
+@main("Kudos-Self-Service") {
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header row">
+            <div class="col-md-8">
+                <h1>Edit Kudos</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+            @form(routes.Kudos.update(emp.login, id)) {
+                @CSRF.formField
+                <fieldset>
+                @formElements(theForm)
+                </fieldset>
+
+                <div class="actions">
+                    <input type="submit" value="Update this Role" class="btn btn-primary"> or
+                    <a href="@routes.Kudos.id(emp.login,id)" class="btn btn-default">Cancel</a>
+                </div>
+            }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+            @form(routes.Kudos.delete(emp.login,id), 'class -> "topRight") {
+                <div class="actions">
+
+                    @CSRF.formField
+
+                    <input type="submit" value="Delete this Role" class="btn btn-danger">
+
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+}

@@ -24,6 +24,7 @@ libraryDependencies ++= Seq(
   ws,
   "mysql" % "mysql-connector-java" % "5.1.34",
   "com.typesafe.play" %% "play-slick" % "0.8.1",
+  "com.typesafe.play" %% "play-mailer" % "2.4.0",
   "com.unboundid" % "unboundid-ldapsdk" % "2.3.8",
   "org.webjars" %% "webjars-play" % "2.3.0",
   "org.webjars" % "bootstrap" % "3.3.0",
@@ -40,7 +41,8 @@ libraryDependencies ++= Seq(
   "com.feth"      %% "play-authenticate" % "0.6.8",
   "be.objectify" %% "deadbolt-scala" % "2.3.2",
   "jp.t2v" %% "play2-auth"      % "0.13.0",
-  "jp.t2v" %% "play2-auth-test" % "0.13.0" % "test"
+  "jp.t2v" %% "play2-auth-test" % "0.13.0" % "test",
+  "org.webjars" % "font-awesome" % "4.2.0"
 )
 
 LessKeys.compress in Assets := true

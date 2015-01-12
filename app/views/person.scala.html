@@ -1,7 +1,7 @@
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
 @import models.EmpRelation
-@(ldap: LDAP, person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )])
+@(ldap: LDAP, person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )], kudosFrom:List[KudosToPerson], kudosTo:List[KudosToPerson])
 
 @main(person.getAttributeValue("displayName")) {
 <div class="container">
@@ -106,7 +106,13 @@
                         </div>
                 </div>
             }
-
+            @if(employee.isDefined) {
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <a href="@routes.Kudos.create(employee.get.login)"><i class="fa fa-thumbs-o-up"></i>Give Kudos!</a>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            </div>
+            }
     </div>
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -123,6 +129,8 @@
             @for(list <- LDAP.listTypes) {
              <li role="presentation"><a href='#@list._2.replaceAll(" ","_")' aria-controls='@list._2.replaceAll(" ","_")' role="tab" data-toggle="tab">@list._2</a></li>
             }
+            <li role="presentation"><a href='#KudosRCVD' aria-controls="KudosRCVD" role="tab" data-toggle="tab">Kudos Received</a></li>
+            <li role="presentation"><a href='#KudosGIVEN' aria-controls="KudosGIVEN" role="tab" data-toggle="tab">Kudos Given</a></li>
         </ul>
             <!-- Tab panes -->
         <div class="tab-content">
@@ -184,13 +192,54 @@
                 }
             }
         }
+            <div role="tabpanel" class="tab-pane" id='KudosRCVD'>
+
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Date</th>
+                        <th>Kudos!</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for( kudo <- kudosTo) {
+                        <tr>
+                            <td><a href='@routes.Application.person(kudo.fromPerson)'>@kudo.fromPerson</a></td>
+                            <td>@kudo.dateAdded</td>
+                            <td>@kudo.feedback</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div role="tabpanel" class="tab-pane" id='KudosGIVEN'>
+                <table class="table table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>Date</th>
+                            <th>Kudos!</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for( kudo <- kudosFrom) {
+                            <tr>
+                                <td><a href='@routes.Application.person(kudo.toPerson)'>@kudo.toPerson</a></td>
+                                <td>@kudo.dateAdded</td>
+                                <td>@kudo.feedback</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 </div>
 
-
-@*
+    @*
         <div class="container">
 
         <div class="row">

@@ -14,7 +14,7 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.mvc.Security.Authenticated
 import scala.concurrent.duration.DurationInt
 
-import models.EmpRelations
+import models.{KudosToPeople, EmpRelations}
 
 case class personSearchDetailData(alias: Option[String],
                                   email: Option[String],
@@ -137,7 +137,8 @@ object Application extends Controller {
         val employee = employees.filter(_.login === name).firstOption
         val directsDB = employees.filter(_.managerID === name).list
         if ( directsDB.isEmpty ) {
-          Ok(views.html.person(ldap, results.head, employee, List.empty))
+
+          Ok(views.html.person(ldap, results.head, employee, List.empty,  KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)))
         } else {
           //  val directsLDAP = results.head.getAttributeValues("directReports")
            // if (directsLDAP != null) {
@@ -150,7 +151,7 @@ object Application extends Controller {
                   case Some(res) => (emp, Some(res))
                 }
               }
-              Ok(views.html.person(ldap, results.head, employee, directsToShow))
+              Ok(views.html.person(ldap, results.head, employee, directsToShow, KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)  ))
         }
 
 

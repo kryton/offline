@@ -1,0 +1,36 @@
+@(emp:EmpRelation,user:String,theForm: Form[KudosToPerson])(implicit token: play.filters.csrf.CSRF.Token, s: slick.driver.MySQLDriver.simple.Session)
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f)}
+
+@main("Role-Self-Service") {
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <h1>Tell us what @emp.name did that impressed you?</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+            @form(routes.Kudos.save(emp.login)) {
+                @CSRF.formField
+                <fieldset>
+                    <input type="hidden" name="toPerson" value="@user"/>
+                <input type="hidden" name="fromPerson" value="@emp.login"/>
+                <input type="hidden" name="dateAdded" value="1970-01-01"/>
+                <input type="hidden" name="rejected" value="false"/>
+
+                @formElements(theForm)
+                </fieldset>
+                <div class="actions">
+                    <input type="submit" value="Create" class="btn btn-primary"> or
+                    <a href="@routes.Application.person(emp.login)" class="btn btn-default">Cancel</a>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+}

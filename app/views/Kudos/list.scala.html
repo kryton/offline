@@ -1,0 +1,42 @@
+@(title: String, kudos: List[KudosToPerson])
+
+@main(title) {
+    <div class="container">
+        <div class="page-header " id="banner">
+            <div class="row">
+                <div class="col-xs-12 col-sm-8 col-md-7 col-lg-8">
+                    <h1>@title</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            @if(kudos.nonEmpty) {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Date</th>
+                            <th>Kudos!</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(kudo <- kudos) {
+                        <tr>
+                            <td>@kudo.toPerson</td>
+                            <td>@kudo.fromPerson</td>
+                            <td>@kudo.dateAdded</td>
+                            <td>@kudo.feedback</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            } else {
+                No Kudos found
+                <a href="@routes.Kudos.create("iholsman")">Add Some kudos to Ian</a>
+            }
+            </div>
+        </div>
+    </div>
+}

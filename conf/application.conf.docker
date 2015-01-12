@@ -112,3 +112,9 @@ image {
     directory="/pic/source/"
     cache="/pic/cache/"
 }
+
+kudos.hostname="https://drwiki.digitalriverws.net:9000"
+kudos.admins=["iholsman","alcarlson"]
+kudos.emailDomain=digitalriver.com
+smtp.host=smtp.wip.digitalrivercontent.net
+auth.enable=true

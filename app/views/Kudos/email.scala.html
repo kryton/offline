@@ -1,0 +1,13 @@
+@(obj:KudosToPerson,host:String, url:String)
+
+<h1>New Kudos received for @obj.toPerson on @obj.dateAdded</h1>
+@obj.fromPerson wrote the following
+
+<p>@obj.feedback</p>
+
+
+    If you find this inappropiate, please visit <a href="@host@url">The moderation page</a>
+    and possibly have a quick sync up with @obj.fromPerson's manager.
+
+
+    Thanks!
