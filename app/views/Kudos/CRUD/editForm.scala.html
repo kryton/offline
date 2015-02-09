@@ -12,7 +12,7 @@
     <div class="container">
         <div class="page-header row">
             <div class="col-md-8">
-                <h1>Edit Kudos</h1>
+                <h1>Edit Kudos for @theForm("toPerson").value on @theForm("dateAdded").value</h1>
             </div>
         </div>
 
@@ -22,6 +22,9 @@
                 @CSRF.formField
                 <fieldset>
                 @formElements(theForm)
+                    <input type="hidden" name='@theForm("fromPerson").name' value='@theForm("fromPerson").value' >
+                    <input type="hidden" name='@theForm("dateAdded").name' value='@theForm("dateAdded").value' >
+                    <input type="hidden" name='@theForm("toPerson").name' value='@theForm("toPerson").value' >
                 </fieldset>
 
                 <div class="actions">
@@ -30,6 +33,7 @@
                 </div>
             }
             </div>
+            @theForm.errors
         </div>
         <div class="row">
             <div class="col-md-8">

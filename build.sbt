@@ -27,7 +27,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-mailer" % "2.4.0",
   "com.unboundid" % "unboundid-ldapsdk" % "2.3.8",
   "org.webjars" %% "webjars-play" % "2.3.0",
-  "org.webjars" % "bootstrap" % "3.3.0",
+  "org.webjars" % "bootstrap" % "3.3.2",
   "org.webjars" % "bootswatch" % "3.2.0-2-SNAPSHOT",
   "org.webjars" % "html5shiv" % "3.7.2",
   "org.webjars" % "requirejs" % "2.1.14-3",

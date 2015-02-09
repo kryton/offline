@@ -191,7 +191,9 @@ object Kudos extends Controller {
                         rejected = kudo.rejected,
                         rejectedOn = kudo.rejectedOn,
                         rejectedBy = kudo.rejectedBy,
-                        toPerson = emp.login))
+                        toPerson = kudo.toPerson,
+                        fromPerson = kudo.fromPerson
+                      ))
                       Redirect(routes.Kudos.id(login, id))
                     }
                   )
