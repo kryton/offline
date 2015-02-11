@@ -106,15 +106,16 @@ ldap {
   ]
 }
 
-play.filters.headers.contentSecurityPolicy="default-src 'self';style-src 'self' http://fonts.googleapis.com 'unsafe-inline'; font-src 'self' http://fonts.gstatic.com"
-application.theme="DRInternal"
+play.filters.headers.contentSecurityPolicy = "default-src 'self';style-src 'self' http://fonts.googleapis.com 'unsafe-inline'; font-src 'self' http://fonts.gstatic.com; frame-src 'self' https://www.youtube.com;"
+application.theme = "DRInternal"
 image {
-    directory="/pic/source/"
-    cache="/pic/cache/"
+    directory = "/pic/source/"
+    cache = "/pic/cache/"
 }
 
-kudos.hostname="https://drwiki.digitalriverws.net:9000"
+kudos.hostname="http://drwiki.digitalriverws.net:9000"
 kudos.admins=["iholsman","alcarlson"]
 kudos.emailDomain=digitalriver.com
+kudos.emailRecipient=true
 smtp.host=smtp.wip.digitalrivercontent.net
 auth.enable=true
