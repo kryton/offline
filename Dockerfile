@@ -33,6 +33,7 @@ ADD         app /root/app
 ADD         lib /root/lib
 ADD         test /root/test
 ADD         conf /root/conf
+RUN         cd /root/conf  && cp application.conf.docker application.conf
 ADD         public /root/public
 ADD         public/javascripts/hello.js /root/public/javascripts/hello.js
 RUN         mkdir -p /root/public/stylesheets/

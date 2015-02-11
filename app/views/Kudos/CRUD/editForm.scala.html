@@ -11,14 +11,15 @@
     <!-- Begin page content -->
     <div class="container">
         <div class="page-header row">
-            <div class="col-md-8">
+            <div class="col-xs-12">
                 <h1>Edit Kudos for @theForm("toPerson").value on @theForm("dateAdded").value</h1>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-8">
             @form(routes.Kudos.update(emp.login, id)) {
+                <div class="col-xs-12 col-md-8">
+
                 @CSRF.formField
                 <fieldset>
                 @formElements(theForm)
@@ -27,26 +28,27 @@
                     <input type="hidden" name='@theForm("toPerson").name' value='@theForm("toPerson").value' >
                 </fieldset>
 
+                <div class="col-xs-12 col-md-4">
                 <div class="actions">
-                    <input type="submit" value="Update this Role" class="btn btn-primary"> or
+                    <input type="submit" value="Update" class="btn btn-primary">
                     <a href="@routes.Kudos.id(emp.login,id)" class="btn btn-default">Cancel</a>
                 </div>
+                </div>
             }
-            </div>
-            @theForm.errors
-        </div>
-        <div class="row">
-            <div class="col-md-8">
+
+            <div class="col-xs-12 col-md-4">
             @form(routes.Kudos.delete(emp.login,id), 'class -> "topRight") {
                 <div class="actions">
 
                     @CSRF.formField
 
-                    <input type="submit" value="Delete this Role" class="btn btn-danger">
+                    <input type="submit" value="Delete this feedback" class="btn btn-danger" />
 
                 </div>
             }
             </div>
         </div>
+    </div>
+
     </div>
 }

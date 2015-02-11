@@ -119,7 +119,12 @@ object Kudos extends Controller {
           case Some(user) =>
             EmpRelations.findByLogin(login) match {
               case None => NotFound("login not found")
-              case Some(empRecord) => Ok(views.html.Kudos.CRUD.createForm(empRecord, user, theForm))
+              case Some(empRecord) =>
+                if ( empRecord.login.toLowerCase.equals(user.toLowerCase)) {
+                  NotFound("<html><body>You're Awesome, but we need someone else to tell us! :-)<br /> <iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9cQgQIMlwWw?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>").as("text/html")
+                } else {
+                  Ok(views.html.Kudos.CRUD.createForm(empRecord, user, theForm))
+                }
             }
           case _ => NotFound("userid not found")
         }
@@ -136,6 +141,9 @@ object Kudos extends Controller {
             EmpRelations.findByLogin(login) match {
               case None => NotFound("login not found")
               case Some(empRecord) =>
+                if (user.toLowerCase.equals(empRecord.login.toLowerCase)) {
+                  NotFound("<html><body>You're Awesome, but we need someone else to tell us! :-)<br /> <iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9cQgQIMlwWw?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>").as("text/html")
+                } else {
                 theForm.bindFromRequest.fold(
                   formWithErrors => BadRequest(views.html.Kudos.CRUD.createForm(empRecord, user, theForm.bindFromRequest)),
                   obj => {
@@ -144,6 +152,7 @@ object Kudos extends Controller {
                     Redirect(routes.Kudos.id(login, id))
                   }
                 )
+              }
             }
           case _ => NotFound("userid not found")
         }
@@ -207,6 +216,7 @@ object Kudos extends Controller {
     }
   }
 
+  //TODO add ADMIN-ONLY CHECK
   def moderate(login: String, id: Long) = LDAPAuthAction {
     DBAction { implicit rs =>
       EmpRelations.findByLogin(login) match {
@@ -219,7 +229,7 @@ object Kudos extends Controller {
       }
     }
   }
-
+//TODO add ADMIN-ONLY CHECK
   def moderateUpdate(login: String, id: Long) = LDAPAuthAction {
     CSRFCheck {
       DBAction { implicit rs =>
