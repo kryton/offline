@@ -8,6 +8,7 @@ import java.sql.Date
 
 import com.typesafe.config.ConfigFactory
 import controllers.routes
+import org.apache.commons.lang3.StringEscapeUtils
 import play.api.db.slick.Config.driver.simple._
 
 import scala.slick.jdbc.StaticQuery

@@ -42,7 +42,8 @@ libraryDependencies ++= Seq(
   "be.objectify" %% "deadbolt-scala" % "2.3.2",
   "jp.t2v" %% "play2-auth"      % "0.13.0",
   "jp.t2v" %% "play2-auth-test" % "0.13.0" % "test",
-  "org.webjars" % "font-awesome" % "4.2.0"
+  "org.webjars" % "font-awesome" % "4.2.0",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.4.4"
 )
 
 LessKeys.compress in Assets := true

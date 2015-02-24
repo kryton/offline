@@ -1,0 +1,57 @@
+@(kudos:KudosToPerson, id: Long, theForm: Form[KudosToPerson])(implicit token: play.filters.csrf.CSRF.Token, s: slick.driver.MySQLDriver.simple.Session)
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f) }
+
+@main("Kudos-Self-Service - Admin") {
+
+    <!-- Begin page content -->
+    <div class="container">
+        <div class="page-header row">
+            <div class="col-xs-12">
+                <h1>(Admin) Edit Kudos for @theForm("toPerson").value from @theForm("fromPerson").value on @theForm("dateAdded").value</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            @form(routes.Kudos.moderateUpdate(kudos.toPerson, id)) {
+                <div class="col-xs-12 col-md-8">
+                    The Feedback:
+                    <p>@theForm("feedback").value</p>
+                @CSRF.formField
+                <fieldset>
+
+                    @checkbox(theForm("rejected"), '_label -> "reject?", 'class -> "form-control",'_help->"Select if you find the feedback questionable")
+                    @inputText(theForm("rejectedReason"), 'label -> "reason", 'class->"form-control")
+                    <input type="hidden" name='@theForm("feedback").name' value='@theForm("feedback").value' >
+                    <input type="hidden" name='@theForm("fromPerson").name' value='@theForm("fromPerson").value' >
+                    <input type="hidden" name='@theForm("dateAdded").name' value='@theForm("dateAdded").value' >
+                    <input type="hidden" name='@theForm("toPerson").name' value='@theForm("toPerson").value' >
+
+                </fieldset>
+
+                <div class="col-xs-12 col-md-4">
+                <div class="actions">
+                    <input type="submit" value="Update" class="btn btn-primary">
+                    <a href="@routes.Kudos.id(kudos.toPerson,id)" class="btn btn-default">Cancel</a>
+                </div>
+                </div>
+            }
+
+            <div class="col-xs-12 col-md-4">
+            @form(routes.Kudos.delete(kudos.toPerson,id), 'class -> "topRight") {
+                <div class="actions">
+
+                    @CSRF.formField
+
+                    <input type="submit" value="Delete this feedback" class="btn btn-danger" />
+
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+
+    </div>
+}

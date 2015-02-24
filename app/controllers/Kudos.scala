@@ -1,6 +1,6 @@
 package controllers
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ConfigList, ConfigFactory}
 import filters.LdapAuthFilter
 import models._
 import play.Logger
@@ -10,11 +10,12 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick.{DBAction, _}
 import play.api.mvc._
 import play.filters.csrf.CSRFCheck
-import util.LDAP
+import util.{Json, LDAP}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.slick.jdbc.StaticQuery
+import scala.collection.JavaConversions._
 
 /**
  * Created by iholsman on 9/01/2015.
@@ -85,12 +86,18 @@ object Kudos extends Controller {
     )(KudosToPerson.apply)(KudosToPerson.unapply)
   )
 
-  def kudosList(size: Int) = LDAPAuthAction {
+  def kudosList(size: Int, formatO: Option[String]) =
     DBAction { implicit rs =>
-
-      Ok(views.html.Kudos.list("Most recent Kudos", KudosToPeople.top(size)))
+      val list = KudosToPeople.top(size)
+      formatO match {
+        case Some(format) => if (format.toLowerCase.equals("html")) {
+          Ok(views.html.Kudos.list("Most recent Kudos", list))
+        } else {
+          Ok(Json.toJson(list)).as("application/json")
+        }
+        case None => Ok(Json.toJson(list)).as("application/json")
+      }
     }
-  }
 
   def kudosFrom(login: String, page: Int) = DBAction { implicit rs =>
     Ok("ok")
@@ -102,7 +109,7 @@ object Kudos extends Controller {
 
   def id(login: String, id: Long) = DBAction { implicit rs =>
     EmpRelations.findByLogin(login) match {
-      case None => NotFound("project not found")
+      case None => NotFound("User not found")
       case Some(empRecord) =>
         KudosToPeople.findById(login, id) match {
           case Some(thing) => Ok(views.html.Kudos.CRUD.id(empRecord, thing))
@@ -120,7 +127,7 @@ object Kudos extends Controller {
             EmpRelations.findByLogin(login) match {
               case None => NotFound("login not found")
               case Some(empRecord) =>
-                if ( empRecord.login.toLowerCase.equals(user.toLowerCase)) {
+                if (empRecord.login.toLowerCase.equals(user.toLowerCase)) {
                   NotFound("<html><body>You're Awesome, but we need someone else to tell us! :-)<br /> <iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9cQgQIMlwWw?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>").as("text/html")
                 } else {
                   Ok(views.html.Kudos.CRUD.createForm(empRecord, user, theForm))
@@ -144,15 +151,15 @@ object Kudos extends Controller {
                 if (user.toLowerCase.equals(empRecord.login.toLowerCase)) {
                   NotFound("<html><body>You're Awesome, but we need someone else to tell us! :-)<br /> <iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/9cQgQIMlwWw?autoplay=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>").as("text/html")
                 } else {
-                theForm.bindFromRequest.fold(
-                  formWithErrors => BadRequest(views.html.Kudos.CRUD.createForm(empRecord, user, theForm.bindFromRequest)),
-                  obj => {
-                    val result = KudosToPeople.create(login, obj.copy(toPerson = empRecord.login, fromPerson = user, rejected = false, dateAdded = now))
-                    val id = (StaticQuery[Long] + "SELECT LAST_INSERT_ID()").first
-                    Redirect(routes.Kudos.id(login, id))
-                  }
-                )
-              }
+                  theForm.bindFromRequest.fold(
+                    formWithErrors => BadRequest(views.html.Kudos.CRUD.createForm(empRecord, user, theForm.bindFromRequest)),
+                    obj => {
+                      val result = KudosToPeople.create(login, obj.copy(toPerson = empRecord.login, fromPerson = user, rejected = false, dateAdded = now))
+                      val id = (StaticQuery[Long] + "SELECT LAST_INSERT_ID()").first
+                      Redirect(routes.Kudos.id(login, id))
+                    }
+                  )
+                }
             }
           case _ => NotFound("userid not found")
         }
@@ -218,35 +225,63 @@ object Kudos extends Controller {
 
   //TODO add ADMIN-ONLY CHECK
   def moderate(login: String, id: Long) = LDAPAuthAction {
+    val admins: Set[String] = ConfigFactory.load().getStringList("kudos.admins").toList.map(x => x.toLowerCase).toSet
+
     DBAction { implicit rs =>
-      EmpRelations.findByLogin(login) match {
-        case None => NotFound("emp not found")
-        case Some(emp) =>
-          KudosToPeople.findById(login, id) match {
-            case None => NotFound("Not Found")
-            case Some(thing) => Ok(views.html.Kudos.CRUD.editForm(emp, id, theForm.fill(thing)))
+      getUser(rs.request) match {
+        case None => NotFound("user Not Found")
+        case Some(user) =>
+          if (admins.contains(user.toLowerCase)) {
+            KudosToPeople.findById(login, id) match {
+              case None => NotFound("Not Found")
+              case Some(kudos) => Ok(views.html.Kudos.CRUD.moderateForm(kudos, id, theForm.fill(kudos)))
+            }
+          } else {
+            NotFound("Only Admins can use this screen")
           }
       }
     }
   }
+
+
 //TODO add ADMIN-ONLY CHECK
   def moderateUpdate(login: String, id: Long) = LDAPAuthAction {
-    CSRFCheck {
-      DBAction { implicit rs =>
-        EmpRelations.findByLogin(login) match {
-          case None => NotFound("Employee not found")
-          case Some(emp) =>
-            theForm.bindFromRequest.fold(
-              formWithErrors => BadRequest(views.html.Kudos.CRUD.editForm(emp, id, theForm.bindFromRequest)),
-              obj => {
-                val result = KudosToPeople.update(emp.login, id, obj.copy(id = Some(id), toPerson = emp.login))
-                Redirect(routes.Kudos.id(login, id))
-              }
-            )
-        }
+  val admins: Set[String] = ConfigFactory.load().getStringList("kudos.admins").toList.map(x => x.toLowerCase).toSet
+
+  CSRFCheck {
+    DBAction { implicit rs =>
+      getUser(rs.request) match {
+        case None => NotFound("User Not Found")
+        case Some(user) =>
+          if (admins.contains(user.toLowerCase)) {
+            KudosToPeople.findById(login,id) match {
+              case None => NotFound("Employee not found")
+              case Some(kudos) =>
+                theForm.bindFromRequest.fold(
+                  formWithErrors => BadRequest(views.html.Kudos.CRUD.moderateForm(kudos, id, theForm.bindFromRequest)),
+                  obj => {
+                    val now: java.sql.Date = new java.sql.Date(System.currentTimeMillis())
+
+                    val result = KudosToPeople.update(login, id,
+                      obj.copy(id = Some(id),
+                        toPerson = kudos.toPerson,
+                        dateAdded = kudos.dateAdded,
+                        fromPerson = kudos.fromPerson,
+                        feedback = kudos.feedback,
+                      rejectedBy = Some(user.toLowerCase),
+                      rejectedOn=Some(now)))
+                    Redirect(routes.Kudos.id(login, id))
+                  }
+                )
+            }
+          } else {
+            NotFound("Only Admins can use this screen")
+          }
       }
     }
   }
+}
+
 
   def delete(login: String, id: Long) = LDAPAuthAction {
     CSRFCheck {
@@ -304,12 +339,10 @@ object Kudos extends Controller {
                 case None =>   KudosToPeople.genFlaggedEmail(thing,None,obj.login, obj.complaint)
                 case Some(emp) => KudosToPeople.genFlaggedEmail(thing,emp.managerID,obj.login, obj.complaint)
               }
-
               Redirect(routes.Application.person(login))
             })
       }
-      Ok("")
-
+//      Ok("")
     }
   }
 }

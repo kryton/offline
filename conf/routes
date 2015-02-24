@@ -22,7 +22,7 @@ GET         /headshot/edit/*name                 controllers.ImageC.headShot(nam
 GET         /logout                             controllers.Kudos.logout()
 GET         /person/:login/kudosFrom/            controllers.Kudos.kudosFrom(login:String,p: Int ?= 0)
 GET         /person/:login/kudosTo/              controllers.Kudos.kudosTo(login:String,p: Int ?= 0)
-GET         /kudos/                              controllers.Kudos.kudosList(size: Int ?= 10)
+GET         /kudos/                              controllers.Kudos.kudosList(size: Int ?= 10, format: Option[String] ?= None)
 
 GET         /kudos/:login/new                    controllers.Kudos.create(login:String)
 POST        /kudos/:login/save                   controllers.Kudos.save(login:String)
