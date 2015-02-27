@@ -132,6 +132,17 @@ class LDAP {
       case Some(p) => serverMap.getOrElse(p, serverMap(mainDN)).search(searchFilter)
     }
   }
+  def getAttributeValueByAccount(accountName: String, domain: Option[String] = None, field:String):Option[String] = {
+    getPersonByAccount(accountName,domain).headOption match {
+      case None=>None
+      case Some(p) => val fieldValue = p.getAttributeValue(field)
+        if (fieldValue == null ) {
+          None
+        } else {
+          Some(fieldValue)
+        }
+    }
+  }
 
   def authenticateAccount(accountName: String, password:String): Boolean = {
     val r = getPersonByAccount(accountName)

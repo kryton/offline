@@ -31,11 +31,11 @@
                         </div>
                         @if(employee.isDefined) {
                                 @if(employee.get.managerID.isDefined) {
+
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                     <p>Reports to:
-
                                         <a href='@routes.Application.person(employee.get.managerID.get.toLowerCase)'>
-                                        @ldap.getPersonByAccount(employee.get.managerID.get.toLowerCase, None).head.getAttributeValue("name")
+                                        @ldap.getAttributeValueByAccount(employee.get.managerID.get.toLowerCase, None, "name").getOrElse( "No Manager")
                                         </a>
                                     </p>
                                 </div>
