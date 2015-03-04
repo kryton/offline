@@ -1,0 +1,12 @@
+@(obj:KudosToPerson,host:String, url:String, admins:String)
+
+<h1>New Kudos received for @obj.toPerson on @obj.dateAdded</h1>
+@obj.fromPerson wrote the following
+
+<p>@obj.feedback</p>
+
+
+<b>To ensure it was you who wrote this please click on <a href="@host@url">here</a>.</b>
+
+If it wasn't you, please ignore this message, or forward it to this to one of the admins @admins
+

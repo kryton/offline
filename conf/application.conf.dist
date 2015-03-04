@@ -108,3 +108,13 @@ image {
     directory="/pic/source"
     cache="/pic/cache"
 }
+
+kudos.hostname="http://[URL OF YOUR WEBSITE]:9000"
+kudos.emailDomain=example.com
+kudos.admins=["admin1","admin2"]
+kudos.emailRecipient=true
+smtp.host=smtp.example.com
+# do we need to authenticate users
+auth.enable=true
+# for generating email auth of kudos comments
+kudos.secretKey=LouReedPerfectDay

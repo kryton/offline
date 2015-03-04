@@ -119,3 +119,5 @@ kudos.emailDomain=digitalriver.com
 kudos.emailRecipient=true
 smtp.host=smtp.wip.digitalrivercontent.net
 auth.enable=true
+# for generating email auth of kudos comments
+kudos.secretKey=IggyPopThePassenger

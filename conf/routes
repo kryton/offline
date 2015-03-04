@@ -19,10 +19,12 @@ GET         /headshot/edit/*name                 controllers.ImageC.headShot(nam
 #POST        /headshot/edit/*name        controllers.ImageC.headShot(name, domain:Option[String] ?= None)
 #GET         /headshot/*name             controllers.ImageC.headShot(name, domain:Option[String] ?= None)
 
-GET         /logout                             controllers.Kudos.logout()
+GET         /logout                              controllers.Kudos.logout()
 GET         /person/:login/kudosFrom/            controllers.Kudos.kudosFrom(login:String,p: Int ?= 0)
 GET         /person/:login/kudosTo/              controllers.Kudos.kudosTo(login:String,p: Int ?= 0)
 GET         /kudos/                              controllers.Kudos.kudosList(size: Int ?= 10, format: Option[String] ?= None)
+GET         /kudos/auth/:cryptString             controllers.Kudos.authKudos(cryptString: String)
+GET         /kudos/genEmail                      controllers.Kudos.genKudosEmail()
 
 GET         /kudos/:login/new                    controllers.Kudos.create(login:String)
 POST        /kudos/:login/save                   controllers.Kudos.save(login:String)

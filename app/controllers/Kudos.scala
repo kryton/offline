@@ -1,21 +1,26 @@
 package controllers
 
-import com.typesafe.config.{ConfigList, ConfigFactory}
+import javax.crypto.IllegalBlockSizeException
+
+import com.typesafe.config.ConfigFactory
 import filters.LdapAuthFilter
 import models._
+import org.apache.commons.codec.DecoderException
 import play.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.db.slick.Config.driver.simple._
 import play.api.db.slick.{DBAction, _}
+import play.api.libs.Crypto
 import play.api.mvc._
 import play.filters.csrf.CSRFCheck
 import util.{Json, LDAP}
 
+import scala.collection.JavaConversions._
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.slick.jdbc.StaticQuery
-import scala.collection.JavaConversions._
+import scala.util.Random
 
 /**
  * Created by iholsman on 9/01/2015.
@@ -57,6 +62,8 @@ case class LDAPAuthAction[A](action: Action[A]) extends Action[A] {
 }
 
 case class FlagData(login: String, complaint: String)
+
+case class authData(from: String, to: String, message: String)
 
 object Kudos extends Controller {
   implicit val timeout = 10.seconds
@@ -154,9 +161,10 @@ object Kudos extends Controller {
                   theForm.bindFromRequest.fold(
                     formWithErrors => BadRequest(views.html.Kudos.CRUD.createForm(empRecord, user, theForm.bindFromRequest)),
                     obj => {
-                      val result = KudosToPeople.create(login, obj.copy(toPerson = empRecord.login, fromPerson = user, rejected = false, dateAdded = now))
-                      val id = (StaticQuery[Long] + "SELECT LAST_INSERT_ID()").first
-                      Redirect(routes.Kudos.id(login, id))
+                      val result:KudosToPerson = KudosToPeople.create(login, obj.copy(toPerson = empRecord.login, fromPerson = user, rejected = false, dateAdded = now))
+                      KudosToPeople.genNewEmail(result)
+                     // val id = (StaticQuery[Long] + "SELECT LAST_INSERT_ID()").first
+                      Redirect(routes.Kudos.id(login, result.id.get))
                     }
                   )
                 }
@@ -244,43 +252,43 @@ object Kudos extends Controller {
   }
 
 
-//TODO add ADMIN-ONLY CHECK
+  //TODO add ADMIN-ONLY CHECK
   def moderateUpdate(login: String, id: Long) = LDAPAuthAction {
-  val admins: Set[String] = ConfigFactory.load().getStringList("kudos.admins").toList.map(x => x.toLowerCase).toSet
+    val admins: Set[String] = ConfigFactory.load().getStringList("kudos.admins").toList.map(x => x.toLowerCase).toSet
 
-  CSRFCheck {
-    DBAction { implicit rs =>
-      getUser(rs.request) match {
-        case None => NotFound("User Not Found")
-        case Some(user) =>
-          if (admins.contains(user.toLowerCase)) {
-            KudosToPeople.findById(login,id) match {
-              case None => NotFound("Employee not found")
-              case Some(kudos) =>
-                theForm.bindFromRequest.fold(
-                  formWithErrors => BadRequest(views.html.Kudos.CRUD.moderateForm(kudos, id, theForm.bindFromRequest)),
-                  obj => {
-                    val now: java.sql.Date = new java.sql.Date(System.currentTimeMillis())
+    CSRFCheck {
+      DBAction { implicit rs =>
+        getUser(rs.request) match {
+          case None => NotFound("User Not Found")
+          case Some(user) =>
+            if (admins.contains(user.toLowerCase)) {
+              KudosToPeople.findById(login, id) match {
+                case None => NotFound("Employee not found")
+                case Some(kudos) =>
+                  theForm.bindFromRequest.fold(
+                    formWithErrors => BadRequest(views.html.Kudos.CRUD.moderateForm(kudos, id, theForm.bindFromRequest)),
+                    obj => {
+                      val now: java.sql.Date = new java.sql.Date(System.currentTimeMillis())
 
-                    val result = KudosToPeople.update(login, id,
-                      obj.copy(id = Some(id),
-                        toPerson = kudos.toPerson,
-                        dateAdded = kudos.dateAdded,
-                        fromPerson = kudos.fromPerson,
-                        feedback = kudos.feedback,
-                      rejectedBy = Some(user.toLowerCase),
-                      rejectedOn=Some(now)))
-                    Redirect(routes.Kudos.id(login, id))
-                  }
-                )
+                      val result = KudosToPeople.update(login, id,
+                        obj.copy(id = Some(id),
+                          toPerson = kudos.toPerson,
+                          dateAdded = kudos.dateAdded,
+                          fromPerson = kudos.fromPerson,
+                          feedback = kudos.feedback,
+                          rejectedBy = Some(user.toLowerCase),
+                          rejectedOn = Some(now)))
+                      Redirect(routes.Kudos.id(login, id))
+                    }
+                  )
+              }
+            } else {
+              NotFound("Only Admins can use this screen")
             }
-          } else {
-            NotFound("Only Admins can use this screen")
-          }
+        }
       }
     }
   }
-}
 
 
   def delete(login: String, id: Long) = LDAPAuthAction {
@@ -310,7 +318,8 @@ object Kudos extends Controller {
 
 
   val flagForm = Form(
-    mapping("login" -> text, "compliant" -> text
+    mapping("from" -> text,
+      "compliant" -> text
     )(FlagData.apply)(FlagData.unapply)
   )
 
@@ -336,13 +345,95 @@ object Kudos extends Controller {
             formWithErrors => BadRequest(views.html.Kudos.flagForm(thing, flagForm.bindFromRequest)),
             obj => {
               EmpRelations.findByLogin(thing.fromPerson) match {
-                case None =>   KudosToPeople.genFlaggedEmail(thing,None,obj.login, obj.complaint)
-                case Some(emp) => KudosToPeople.genFlaggedEmail(thing,emp.managerID,obj.login, obj.complaint)
+                case None => KudosToPeople.genFlaggedEmail(thing, None, obj.login, obj.complaint)
+                case Some(emp) => KudosToPeople.genFlaggedEmail(thing, emp.managerID, obj.login, obj.complaint)
               }
               Redirect(routes.Application.person(login))
             })
       }
-//      Ok("")
+      //      Ok("")
     }
+  }
+
+  def authKudos(cryptString: String) = DBAction {
+    implicit rs =>
+      try {
+        val decrypted: String = Crypto.decryptAES(cryptString)
+        val parts = decrypted.split("\\|")
+        if (parts.length != 3 ) {
+          BadRequest("Invalid message. I was expecting 4 parts")
+        } else {
+          if (parts(0) != "42") {
+            BadRequest("Invalid message. Bad cookie")
+          }else {
+            val id:Long = parts(1).toLong
+           KudosToPeople.findById(id) match {
+             case None => NotFound("I can't find that")
+             case Some(obj:KudosToPerson) =>
+               if (obj.rejected ) {
+               obj.rejectedBy match {
+                 case None =>
+                   val newObj = obj.copy(rejected = false, rejectedBy = None, rejectedReason = None)
+                   KudosToPeople.update(obj.toPerson, id, newObj)
+                   KudosToPeople.genNewEmail(newObj)
+                   Ok("Thank you. The feedback should be now visible")
+                 case Some(rj) =>
+                   if (rj.equals("SYSTEM")) {
+                     val newObj = obj.copy(rejected = false, rejectedBy = None, rejectedReason = None, rejectedOn=None)
+                     KudosToPeople.update(obj.toPerson, id, newObj)
+                     KudosToPeople.genNewEmail(newObj)
+                     Ok("Thank you. The feedback should be now visible")
+                   } else {
+                     BadRequest("I'm sorry. That message was flagged for moderation. please contact the admins for more information")
+                   }
+               }
+             } else {
+               Ok("Thanks! it should be visible")
+             }
+           }
+          }
+        }
+      } catch {
+        case e: DecoderException => BadRequest(e.getLocalizedMessage)
+        case e: IllegalBlockSizeException => BadRequest(e.getLocalizedMessage)
+      }
+  }
+
+  val authForm = Form(
+    mapping(
+      "from" -> text,
+      "to" -> text,
+      "message" -> text
+    )(authData.apply)(authData.unapply)
+  )
+
+  def genKudosEmail() = DBAction { implicit rs =>
+    authForm.bindFromRequest.fold(
+      formWithErrors => BadRequest("I don't understand that"),
+      obj => {
+        if ( obj.from.toLowerCase.equals(obj.to.toLowerCase)) {
+          BadRequest("Can't give feedback to yourself")
+        } else {
+          val fromPers: Option[EmpRelation] = EmpRelations.findByLogin(obj.from)
+          val toPers: Option[EmpRelation] = EmpRelations.findByLogin(obj.to)
+          if (fromPers.isEmpty) {
+            BadRequest("I can't find the person who is giving the feedback")
+          } else {
+            if (toPers.isEmpty) {
+              BadRequest("I can't find the person who the feedback is for")
+            } else {
+              val now: java.sql.Date = new java.sql.Date(System.currentTimeMillis())
+              //  val twentyFourHours: Long = 86400000L
+              val kudosToPerson: KudosToPerson = new KudosToPerson(None, obj.from, obj.to, now, obj.message, true, Some("SYSTEM"), Some(now), Some("AwaitingAuth"))
+              val result: KudosToPerson = KudosToPeople.create(obj.to, kudosToPerson)
+
+              val encrypted: String = Crypto.encryptAES("42|" + result.id.get + "|" + Random.nextString(3))
+              KudosToPeople.genAuthEmail(kudosToPerson, encrypted)
+              Ok(s"An Email was sent to you to authenticate this.")
+            }
+          }
+        }
+      }
+    )
   }
 }
