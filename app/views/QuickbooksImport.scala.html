@@ -1,9 +1,7 @@
 @(pageTitle: String)(implicit token: play.filters.csrf.CSRF.Token)
 @import helper._
 
-    @implicitFieldConstructor = @{
-        FieldConstructor(twitterBootstrapInput.f)
-    }
+    @implicitFieldConstructor = @{  FieldConstructor(twitterBootstrapInput.f)  }
 
 @main(pageTitle) {
     <div class="container">

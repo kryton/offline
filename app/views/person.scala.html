@@ -1,7 +1,12 @@
+@(ldap: util.LDAP,
+        person:com.unboundid.ldap.sdk.SearchResultEntry,
+        employee: Option[models.EmpRelation],
+        directs:List[(models.EmpRelation,Option[com.unboundid.ldap.sdk.SearchResultEntry] )],
+        kudosFrom:List[models.KudosToPerson], kudosTo:List[models.KudosToPerson])
+
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
 @import models.EmpRelation
-@(ldap: LDAP, person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )], kudosFrom:List[KudosToPerson], kudosTo:List[KudosToPerson])
 
 @main(person.getAttributeValue("displayName")) {
 <div class="container">

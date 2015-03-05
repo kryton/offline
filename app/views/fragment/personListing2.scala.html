@@ -1,6 +1,7 @@
+@(ldap:util.LDAP, results:List[(models.EmpRelation,Option[com.unboundid.ldap.sdk.SearchResultEntry])])
+
 @import util.LDAP
 @import com.unboundid.ldap.sdk.SearchResultEntry
-@(ldap:LDAP, results:List[(EmpRelation,Option[SearchResultEntry])])
 @header(orderBy: Int, title: String, classEx:Option[String] = None) = {
     <th class="col@orderBy header @classEx.getOrElse("") ">
     @title

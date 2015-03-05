@@ -3,6 +3,7 @@ package controllers
 import javax.crypto.IllegalBlockSizeException
 
 import com.typesafe.config.ConfigFactory
+import controllers.Application._
 import filters.LdapAuthFilter
 import models._
 import org.apache.commons.codec.DecoderException
@@ -100,9 +101,10 @@ object Kudos extends Controller {
         case Some(format) => if (format.toLowerCase.equals("html")) {
           Ok(views.html.Kudos.list("Most recent Kudos", list))
         } else {
-          Ok(Json.toJson(list)).as("application/json")
+          Ok(Json.toJson(list)).as("application/json;  charset=utf-8").withHeaders(("Access-Control-Allow-Origin","*"))
         }
-        case None => Ok(Json.toJson(list)).as("application/json")
+        case None => Ok(Json.toJson(list)).as("application/json;  charset=utf-8") .withHeaders(("Access-Control-Allow-Origin","*"))
+
       }
     }
 

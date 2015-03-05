@@ -3,18 +3,15 @@ package controllers
 import java.net.URLDecoder
 
 import com.unboundid.ldap.sdk.SearchResultEntry
-
+import models.{EmpRelations, KudosToPeople}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.mvc._
-import util.{Page, LDAP}
-import play.api.db.slick.DBAction
-import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
-import play.api.mvc.Security.Authenticated
-import scala.concurrent.duration.DurationInt
+import play.api.db.slick.{DBAction, _}
+import play.api.mvc._
+import util.{Json, LDAP, Page}
 
-import models.{KudosToPeople, EmpRelations}
+import scala.concurrent.duration.DurationInt
 
 case class personSearchDetailData(alias: Option[String],
                                   email: Option[String],
@@ -66,7 +63,7 @@ object Application extends Controller {
     personSearchCompactForm.bindFromRequest.fold(
       formWithErrors => {
         // binding failure, you retrieve the form containing errors:
-        BadRequest(views.html.peopleSearchC(ldap,personSearchCompactForm, Page(null, 1, 0, 0, pageSize)))
+        BadRequest(views.html.peopleSearchC(ldap, personSearchCompactForm, Page(null, 1, 0, 0, pageSize)))
       },
       personSearchCompactData => {
         /* binding success, you get the actual value. */
@@ -80,7 +77,7 @@ object Application extends Controller {
         } else {
           val offset = pageSize * page
           val pageList = Page(results.drop(offset).take(pageSize), page, offset, results.size, pageSize)
-          Ok(views.html.peopleSearchC(ldap,personSearchCompactForm.bindFromRequest(), pageList))
+          Ok(views.html.peopleSearchC(ldap, personSearchCompactForm.bindFromRequest(), pageList))
         }
       }
     )
@@ -136,22 +133,22 @@ object Application extends Controller {
       case 1 =>
         val employee = employees.filter(_.login === name).firstOption
         val directsDB = employees.filter(_.managerID === name).list
-        if ( directsDB.isEmpty ) {
+        if (directsDB.isEmpty) {
 
-          Ok(views.html.person(ldap, results.head, employee, List.empty,  KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)))
+          Ok(views.html.person(ldap, results.head, employee, List.empty, KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)))
         } else {
           //  val directsLDAP = results.head.getAttributeValues("directReports")
-           // if (directsLDAP != null) {
-              val directsLDAPMap = directsDB.map {
-                x =>  ldap.getPersonByAccount(x.login.toLowerCase,None).headOption
-              }.flatten.map(f => (f.getAttributeValue("sAMAccountName") -> f)).toMap
-              val directsToShow = directsDB.map {
-                emp => directsLDAPMap.get(emp.login.toLowerCase) match {
-                  case None => (emp, None)
-                  case Some(res) => (emp, Some(res))
-                }
-              }
-              Ok(views.html.person(ldap, results.head, employee, directsToShow, KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)  ))
+          // if (directsLDAP != null) {
+          val directsLDAPMap = directsDB.map {
+            x => ldap.getPersonByAccount(x.login.toLowerCase, None).headOption
+          }.flatten.map(f => (f.getAttributeValue("sAMAccountName") -> f)).toMap
+          val directsToShow = directsDB.map {
+            emp => directsLDAPMap.get(emp.login.toLowerCase) match {
+              case None => (emp, None)
+              case Some(res) => (emp, Some(res))
+            }
+          }
+          Ok(views.html.person(ldap, results.head, employee, directsToShow, KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)))
         }
 
 
@@ -166,8 +163,31 @@ object Application extends Controller {
     results.size match {
       case 0 => NotFound(views.html.notFoundGroup(name))
       case 1 => Ok(views.html.group(ldap, results.head))
-      case _ => Redirect(routes.Application.groupSearchCompact(0,Some(name)))
+      case _ => Redirect(routes.Application.groupSearchCompact(0, Some(name)))
     }
+  }
+
+  case class autoCompleteResult(total_count: Int, incomplete_Results: Boolean, items: List[person])
+
+  case class person(id: String, name: String)
+
+  def personAutoComplete(q: Option[String]) = Action { implicit request =>
+    val result:autoCompleteResult = q match {
+      case None => autoCompleteResult(total_count = 0, incomplete_Results = false, items = List.empty)
+      case Some(query) =>
+        if ( query.length < 2 ) {
+          autoCompleteResult(total_count = 0, incomplete_Results = false, items = List.empty)
+        }else {
+          val results = ldap.personSearchCompact(query)
+          if (results.isEmpty) {
+            autoCompleteResult(total_count = 0, incomplete_Results = false, items = List.empty)
+          } else {
+            val list:List[Application.person] = results.map( x => person(x.getAttributeValue("sAMAccountName"), x.getAttributeValue("name"))).toList
+            autoCompleteResult(total_count=results.length, incomplete_Results = false, items=list)
+          }
+        }
+    }
+    Ok(Json.toJson(result)).as("application/json; charset=utf-8").withHeaders(("Access-Control-Allow-Origin","*"))
   }
 }
 

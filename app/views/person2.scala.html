@@ -1,7 +1,12 @@
+@(ldap: util.LDAP,
+        userName:String ,
+        person:com.unboundid.ldap.sdk.SearchResultEntry,
+        employee: Option[models.EmpRelation],
+        directs:List[(models.EmpRelation,Option[com.unboundid.ldap.sdk.SearchResultEntry] )])
+
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
 @import models.EmpRelation
-@(ldap: LDAP, userName:String , person:SearchResultEntry, employee: Option[EmpRelation], directs:List[(EmpRelation,Option[SearchResultEntry] )])
 
 @main(person.getAttributeValue("displayName")) {
 

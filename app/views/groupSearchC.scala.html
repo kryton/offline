@@ -1,9 +1,10 @@
+@(ldap: util.LDAP, c: Form[groupSearchCompactData], currentPage: util.Page[com.unboundid.ldap.sdk.SearchResultEntry])
+
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.Page
 @import helper._
 @import util.LDAP
 
-@(ldap: LDAP, c: Form[groupSearchCompactData], currentPage: Page[SearchResultEntry])
 
 @implicitFieldConstructor = @{
     FieldConstructor(twitterBootstrapInput.f)

@@ -1,6 +1,7 @@
+@(ldap: util.LDAP, group:com.unboundid.ldap.sdk.SearchResultEntry)
+
 @import com.unboundid.ldap.sdk.SearchResultEntry
 @import util.LDAP
-@(ldap: LDAP, group:SearchResultEntry)
 
 @main(group.getAttributeValue("displayName")) {
     <div class="container">
