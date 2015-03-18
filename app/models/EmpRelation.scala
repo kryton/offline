@@ -25,16 +25,23 @@ case class QuickBookImport(
                             personalSubArea: String,
                             employeeGroup: String,
                             position: String,
-                            job: String,
+                            agency: String,
+                            managerID: Option[Long],
                             managerName: Option[String],
+                            managerLogin: Option[String],
                             executiveName: Option[String],
                             hireRehireDate: Option[Date],
                             terminationDate: Option[Date],
                             login: Option[String],
-                            managerID: Option[Long],
-                            managerLogin: Option[String],
                             officeLocation: Option[String],
-                            employeeType:Option[String]
+                            officeLocation2: Option[String],
+                            employeeType:Option[String],
+                            officeCity:Option[String],
+                            officeStreet:Option[String],
+                            officePOBox:Option[String],
+                            officeRegion:Option[String],
+                            officeZipcode:Option[String],
+                            officeCountry:Option[String]
                             ) {
   def isFTE: Boolean = {
     !employeeGroup.equalsIgnoreCase("External employee")
@@ -60,9 +67,17 @@ case class EmpRelation(
                          personalSubArea: String,
                          employeeGroup: String,
                          position: String,
-                         job: String,
+                         agency: String,
                          executiveName: Option[String],
                          officeLocation: Option[String],
+                         officeLocation2: Option[String],
+
+                      /*   officeCity:Option[String],
+                          officeStreet:Option[String],
+                         officePOBox:Option[String],
+                         officeRegion:Option[String],
+                         officeZipcode:Option[String],
+                         officeCountry:Option[String], */
                          employeeType:Option[String]
                          ) {
   def name: String = {
@@ -98,15 +113,24 @@ class EmpRelations(tag: Tag) extends Table[EmpRelation](tag, "EmpRelations") wit
   def personalSubArea = column[String]("PersonalSubArea", O.NotNull)
   def employeeGroup = column[String]("EmployeeGroup", O.NotNull)
   def position = column[String]("Position", O.NotNull)
-  def job = column[String]("Job", O.NotNull)
+  def agency = column[String]("Agency", O.NotNull)
   def executiveName = column[String]("ExecutiveName", O.Nullable)
   def officeLocation = column[String]("OfficeLocation", O.Nullable)
+  def officeLocation2 = column[String]("OfficeLocation2", O.Nullable)
+ /* def officeCity = column[String]("OfficeCity", O.Nullable)
+  def officeStreet = column[String]("OfficeStreet", O.Nullable)
+  def officePOBox = column[String]("OfficePOBox", O.Nullable)
+  def officeRegion = column[String]("OfficeRegion", O.Nullable)
+  def officeZipcode = column[String]("OfficeZipcode", O.Nullable)
+  def officeCountry = column[String]("OfficeCountry", O.Nullable)*/
   def employeeType = column[String]("EmployeeType", O.Nullable)
 
   def * = (personNumber, login, firstName, nickName.?, lastName, managerID.?, directs, reports, reportsContractor,
     companyCode, companyCodeName,
-    costCenter, costCenterText, personalArea, personalSubArea, employeeGroup, position, job,
-    executiveName.?,  officeLocation.?, employeeType.?) <>((EmpRelation.apply _).tupled, EmpRelation.unapply)
+    costCenter, costCenterText, personalArea, personalSubArea, employeeGroup, position, agency,
+    executiveName.?,  officeLocation.?, officeLocation2.?,
+   /* officeCity.?, officeStreet.?, officePOBox.?, officeRegion.?, officeZipcode.?,  officeCountry.?,*/
+    employeeType.?) <>((EmpRelation.apply _).tupled, EmpRelation.unapply)
 }
 
 object EmpRelations {

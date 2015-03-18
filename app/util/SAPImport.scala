@@ -70,33 +70,71 @@ object SAPImport {
       line =>
         if (!line.startsWith("Pers No|")) {
           val bits: Array[String] = line.split("\\|", -1) //.drop(1)
-          val mgr = bits(15).trim match {
+          val nickName = bits(2).trim match {
+              case "" => None
+              case x: String => Some(x)
+            }
+
+          val mgrNumber = bits(15).trim match {
+              case "" => None
+              case x: String => toLong(x)
+          }
+          val mgr = bits(16).trim match {
               case "" => None
               case x: String => Some(x)
           }
 
-          val mgrID = if (bits.length == 20) None
-          else bits(21).trim match {
+          val mgrID = bits(17).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val empID = bits(19).trim match {
+          val empID = bits(21).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val exec = bits(16).trim match {
+          val exec = bits(18).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val nickName = bits(2).trim match {
+
+          val termDate = bits(20).trim match {
             case "" => None
-            case x: String => Some(x)
+            case x: String => if ( x.equals("00/00/0000")) None else { toDate(x)}
           }
           val workstation = bits(22).trim match {
             case "" => None
             case x: String => Some(x)
           }
-          val employeeType = bits(23).trim match {
+          val workstation2 = bits(23).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val employeeType = bits(24).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+
+          val officeCity = bits(25).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val officeStreet = bits(26).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val officePOBox = bits(27).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val officeRegion = bits(28).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val officeZipCode= bits(29).trim match {
+            case "" => None
+            case x: String => Some(x)
+          }
+          val officeCountry = bits(30).trim match {
             case "" => None
             case x: String => Some(x)
           }
@@ -104,13 +142,12 @@ object SAPImport {
           val record = QuickBookImport(toLong(bits(0)).get, bits(1).trim, nickName, bits(3).trim, bits(4),
             toInt(bits(5)).getOrElse(0) /*CompanyCode */ ,
             bits(6), toLong(bits(7)).getOrElse(0) /* costCenter */ , bits(8), bits(9), bits(10),
-            bits(11), /*skip EmpSubgroup */ bits(13), bits(14).trim, mgr, exec,
-            toDate(bits(17)), None /*TerminationDate*/ ,
+            bits(11), /*skip EmpSubgroup */ bits(13) /* position */, bits(14).trim /* agency */,
+            mgrNumber, mgrID, mgr, exec,
+            toDate(bits(19)), termDate /*TerminationDate*/,
             empID,
-            toLong(bits(20)),
-            mgrID,
-            workstation,
-            employeeType)
+            workstation,workstation2,
+            employeeType, officeCity,officeStreet,officePOBox, officeRegion, officeZipCode, officeCountry)
           Some(record)
         } else {
           None
@@ -140,8 +177,8 @@ object SAPImport {
               empWithCounts.directs /* directs */, empWithCounts.reports /* reports */, empWithCounts.reportsContractors /* reportsContractors*/,
               empRecord.companyCode, empRecord.companyCodeName, empRecord.costCenter, empRecord.costCenterText,
               empRecord.personalArea, empRecord.personalSubArea, empRecord.employeeGroup, empRecord.position,
-              empRecord.job,
-              empRecord.executiveName, empRecord.officeLocation, empRecord.employeeType)
+              empRecord.agency,
+              empRecord.executiveName, empRecord.officeLocation, empRecord.officeLocation2, empRecord.employeeType)
             Some(empRel)
           case None => None
         }

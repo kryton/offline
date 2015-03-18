@@ -134,8 +134,8 @@ object Application extends Controller {
         val employee = employees.filter(_.login === name).firstOption
         val directsDB = employees.filter(_.managerID === name).list
         if (directsDB.isEmpty) {
-
-          Ok(views.html.person(ldap, results.head, employee, List.empty, KudosToPeople.findByFrom(employee.get.login), KudosToPeople.findByTo(employee.get.login)))
+           val loginID = results.head.getAttributeValue("sAMAccountName")
+           Ok(views.html.person(ldap, results.head, employee, List.empty, KudosToPeople.findByFrom(loginID), KudosToPeople.findByTo(loginID)))
         } else {
           //  val directsLDAP = results.head.getAttributeValues("directReports")
           // if (directsLDAP != null) {
