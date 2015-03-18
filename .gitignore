@@ -4,6 +4,7 @@ project/project
 project/target
 project/.idea
 conf/application.conf
+conf/application.conf.docker
 target
 tmp
 .history
