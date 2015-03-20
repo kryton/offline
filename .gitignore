@@ -26,3 +26,4 @@ run.prod.sh
 public/stylesheets/main.css
 /3.2.0-2-SNAPSHOT/
 /bootswatch-parent/
+*.swp
